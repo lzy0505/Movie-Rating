@@ -47,7 +47,6 @@ def get_Info():
         except IOError as e:
             print ' - GET_INFO - An {} exception occured'.format(e)
             
-
 def thread_Init():
     for i in range(thread_number):
         t=Thread(target=get_Info)
