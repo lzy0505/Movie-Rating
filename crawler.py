@@ -26,11 +26,11 @@ begin_month = 7
 end_month = 7
 
 ## Below are variables associated with database
-use_db = True
+use_db = False
 
 mysql_ip = 'localhost'
 mysql_user = 'root'
-mysql_passwd = '112358'
+mysql_passwd = 'root'
 mysql_db = 'mv'
 
 def get_IDs():
@@ -57,16 +57,165 @@ def get_IDs():
 def get_info():
     while True:
         try:
+            counter=0
             m_id = movie_IDs.get()
             movie = imdb_access.get_movie(m_id)
             new_movie = Movie()
+            #ID string
             new_movie.id = m_id
+            #Title string
             new_movie.title = movie.get('title')
+            #Poster url string
+            new_movie.cover_url=movie.get('cover url')
+            #Genres string list
+            if movie.has_key('genres'):
+                counter=0
+                for i in movie.get('genres'):
+                    counter+=1
+                    new_movie.genres+= (i +'$')
+                    if counter==5:
+                        break
+                new_movie.genres=new_movie.genres[0:len(new_movie.genres)-1]
+            #Color string list
+            if movie.has_key('color info'):
+                counter=0
+                for i in movie.get('color info'):
+                    new_movie.color_info+= (i +'$')
+                    counter+=1
+                    if counter==5:
+                        break
+                new_movie.color_info=new_movie.color_info[0:len(new_movie.color_info)-1]
+            #Director string list
+            if movie.has_key('director'):
+                counter=0
+                for i in movie.get('director'):
+                    new_movie.director+=i.getID()+'&'+i['name']+'$'
+                    counter+=1
+                    if counter==5:
+                        break
+                new_movie.director=new_movie.director[0:len(new_movie.director)-1]
+            #1st Actor
+            new_movie.cast_1=movie.get('cast')[0]
+            #2nd Actor
+            new_movie.cast_2=movie.get('cast')[1]
+            #3rd Actor
+            new_movie.cast_3=movie.get('cast')[2]
+            #Country string list
+            if movie.has_key('countries'):
+                counter=0
+                for i in movie.get('countries'):
+                    new_movie.countries+= (i +'$')
+                    counter+=1
+                    if counter==5:
+                        break
+                new_movie.countries=new_movie.countries[0:len(new_movie.countries)-1]
+            #Language string list
+            if movie.has_key('languages'):
+                counter=0
+                for i in movie.get('languages'):
+                    new_movie.languages+= (i +'$')
+                    counter+=1
+                    if counter==5:
+                        break
+                new_movie.languages=new_movie.languages[0:len(new_movie.languages)-1]
+            #Writer string list
+            if movie.has_key('writer'):
+                counter=0
+                for i in movie.get('writer'):
+                    new_movie.writer+=i.getID()+'&'+i['name']+'$'
+                    counter+=1
+                    if counter==5:
+                        break
+                new_movie.writer=new_movie.writer[0:len(new_movie.writer)-1]
+            
+            #Editor string list
+            if movie.has_key('editor'):
+                counter=0
+                for i in movie.get('editor'):
+                    new_movie.editor+=i.getID()+'&'+i['name']+'$'
+                    counter+=1
+                    if counter==3:
+                        break
+                new_movie.editor=new_movie.editor[0:len(new_movie.editor)-1]
+            
+            #Cinematographer string list
+            if movie.has_key('cinematographer'):
+                counter=0
+                for i in movie.get('cinematographer'):
+                    new_movie.cinematographer+=i.getID()+'&'+i['name']+'$'
+                    counter+=1
+                    if counter==3:
+                        break
+                new_movie.cinematographer=new_movie.cinematographer[0:len(new_movie.cinematographer)-1]
+            
+            #Art direction string list
+            if movie.has_key('art direction'):
+                counter=0
+                for i in movie.get('art direction'):
+                    new_movie.art_direction+=i.getID()+'&'+i['name']+'$'
+                    counter+=1
+                    if counter==3:
+                        break
+                new_movie.art_direction=new_movie.art_direction[0:len(new_movie.art_direction)-1]
+            
+            #Costume designer string list
+            if movie.has_key('costume designer'):
+                counter=0
+                for i in movie.get('costume designer'):
+                    new_movie.costume_designer+=i.getID()+'&'+i['name']+'$'
+                    counter+=1
+                    if counter==3:
+                        break
+                new_movie.costume_designer=new_movie.costume_designer[0:len(new_movie.costume_designer)-1]
+            
+            #Music By string list
+            if movie.has_key('original music'):
+                counter=0
+                for i in movie.get('original music'):
+                    new_movie.original_music+=i.getID()+'&'+i['name']+'$'
+                    counter+=1
+                    if counter==3:
+                        break
+                new_movie.original_music=new_movie.original_music[0:len(new_movie.original_music)-1]
+            
+            #Sound string list
+            if movie.has_key('sound mix'):
+                counter=0
+                new_movie.sound_mix=movie.get('sound mix')
+                for i in movie.get('sound mix'):
+                    new_movie.sound_mix+= (i +'$')
+                    counter+=1
+                    if counter==3:
+                        break
+                new_movie.sound_mix=new_movie.sound_mix[0:len(new_movie.sound_mix)-1]
+            
+            #Production company string list
+            if movie.has_key('production companies'):
+                counter=0
+                new_movie.production_companies=movie.get('production companies')
+                for i in movie.get('production companies'):
+                    new_movie.production_companies+=i.companyID+'&'+i['name']+'$'
+                    counter+=1
+                    if counter==3:
+                        break
+                new_movie.production_companies=new_movie.production_companies[0:len(new_movie.production_companies)-1]
+            
+            #Year string
+            new_movie.year=movie.get('year')
+            #Running time string list
+            new_movie.runtimes=movie.get('runtimes')[0]
+            
+            #Rating 
+            imdb_access.update(movie, info=('vote details'))
+            new_movie.number_of_votes=movie.get('number of votes')
+            
+            
             movies.put(new_movie)
             movie_IDs.task_done()
-        except IMDbDataAccessError:
-            print ' - GET_INFO - An {} exception occured'.format(e)
-            sleep(2)
+        except Exception ,e:
+            print ' - GET_INFO -  An {} exception occured'.format(e),m_id
+
+           # sleep(2)
 
 def store_movies():
     conn = MySQLdb.connect(mysql_ip, mysql_user, mysql_passwd, mysql_db, charset='utf8')
@@ -75,9 +224,39 @@ def store_movies():
         try:
             new_movie = movies.get()
             cur.execute(
-                "INSERT INTO new_movies values(%s, %s)",
-                (new_movie.id, new_movie.title)
-            )
+                "INSERT INTO new_movies values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                (new_movie.id, 
+                        new_movie.title,
+                        new_movie.cover_url,
+                        new_movie.genres,
+                        new_movie.color_info,
+                        new_movie.director,
+                        new_movie.cast_1,
+                        new_movie.cast_2,
+                        new_movie.cast_3,
+                        new_movie.countries,
+                        new_movie.languages,
+                        new_movie.writer,
+                        new_movie.editor,
+                        new_movie.cinematographer,
+                        new_movie.art_director,
+                        new_movie.costume_designer,
+                        new_movie.composer,
+                        new_movie.sound_mix,
+                        new_movie.production_companies,
+                        new_movie.year,
+                        new_movie.runtimes,
+                        new_movie.number_of_votes[1],
+                        new_movie.number_of_votes[2],
+                        new_movie.number_of_votes[3],
+                        new_movie.number_of_votes[4],
+                        new_movie.number_of_votes[5],
+                        new_movie.number_of_votes[6],
+                        new_movie.number_of_votes[7],
+                        new_movie.number_of_votes[8],
+                        new_movie.number_of_votes[9],
+                        new_movie.number_of_votes[10],
+                ))
             conn.commit()
             print 'insert movie(ID: %s, title: %s) success.' % (new_movie.id, new_movie.title)
             movies.task_done()
