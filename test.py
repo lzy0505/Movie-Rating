@@ -92,7 +92,7 @@ def get_Info():
 
         try:
 
-            m_id = '6333056'
+            m_id = '5013056'
 
             # #movieID.get()
 
@@ -176,13 +176,13 @@ def get_Info():
 
             #Production company string list
 
-            print  movie.get('production companies')
+            # print  movie.get('production companies')
            
-            temp=''
-            counter=0
-            temp=movie.get('production companies')
-            for i in movie.get('production companies'):
-                print i.companyID
+            # temp=''
+            # counter=0
+            # temp=movie.get('production companies')
+            # for i in movie.get('production companies'):
+            #     print i.companyID
                 #temp+=i.getID()+'&'+i['name']+'$'
                 #counter+=1
                 #if counter==3:
@@ -199,7 +199,7 @@ def get_Info():
 
             # print  movie.get('runtimes')
 
-            
+            print movie.get('runtimes')
 
             # #Rating 
 

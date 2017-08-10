@@ -7,6 +7,8 @@ from imdb import imdb,IMDbError,IMDbDataAccessError
 from movie import Movie
 from threading import Thread
 
+
+
 ## We use multi-thread to crawl the data
 thread_number = 5
 
@@ -26,7 +28,7 @@ begin_month = 7
 end_month = 7
 
 ## Below are variables associated with database
-use_db = False
+use_db = True
 
 mysql_ip = 'localhost'
 mysql_user = 'root'
@@ -181,7 +183,6 @@ def get_info():
             #Sound string list
             if movie.has_key('sound mix'):
                 counter=0
-                new_movie.sound_mix=movie.get('sound mix')
                 for i in movie.get('sound mix'):
                     new_movie.sound_mix+= (i +'$')
                     counter+=1
@@ -192,7 +193,6 @@ def get_info():
             #Production company string list
             if movie.has_key('production companies'):
                 counter=0
-                new_movie.production_companies=movie.get('production companies')
                 for i in movie.get('production companies'):
                     new_movie.production_companies+=i.companyID+'&'+i['name']+'$'
                     counter+=1
@@ -201,9 +201,11 @@ def get_info():
                 new_movie.production_companies=new_movie.production_companies[0:len(new_movie.production_companies)-1]
             
             #Year string
-            new_movie.year=movie.get('year')
+            if movie.has_key('year'):
+                new_movie.year=movie.get('year')
             #Running time string list
-            new_movie.runtimes=movie.get('runtimes')[0]
+            if movie.has_key('runtimes'):
+                new_movie.runtimes=movie.get('runtimes')[0]
             
             #Rating 
             imdb_access.update(movie, info=('vote details'))
@@ -239,9 +241,9 @@ def store_movies():
                         new_movie.writer,
                         new_movie.editor,
                         new_movie.cinematographer,
-                        new_movie.art_director,
+                        new_movie.art_direction,
                         new_movie.costume_designer,
-                        new_movie.composer,
+                        new_movie.original_music,
                         new_movie.sound_mix,
                         new_movie.production_companies,
                         new_movie.year,

@@ -80,16 +80,16 @@ class Movie(object):
         return self._cinematographer
     
     @property
-    def art_director(self):
-        return self._art_director
+    def art_direction(self):
+        return self._art_direction
 
     @property
     def costume_designer(self):
         return self._costume_designer
 
     @property
-    def composer(self):
-        return self._composer
+    def original_music(self):
+        return self._original_music
 
     @property
     def sound_mix(self):
@@ -169,17 +169,17 @@ class Movie(object):
     def cinematographer(self, value):
         self._cinematographer = value
 
-    @art_director.setter
-    def art_director(self, value):
-        self._art_director = value
+    @art_direction.setter
+    def art_direction(self, value):
+        self._art_direction = value
 
     @costume_designer.setter
     def costume_designer(self, value):
         self._costume_designer = value
 
-    @composer.setter
-    def composer(self, value):
-        self._composer = value
+    @original_music.setter
+    def original_music(self, value):
+        self._original_music = value
 
     @sound_mix.setter
     def sound_mix(self, value):
