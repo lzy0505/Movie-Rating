@@ -260,10 +260,10 @@ def store_movies():
                         new_movie.number_of_votes[10],
                 ))
             conn.commit()
-            print 'insert movie(ID: %s, title: %s) success.' % (new_movie.id, new_movie.title)
+            print ' - STORE_MOVIE - ID: %s success.' % new_movie.id
             movies.task_done()
         except Exception as e:
-            print 'db_thread: An {} exception occured'.format(e)
+            print ' - STORE_MOVIE - ID: %s An {} exception occured'.format(e) % new_movie.id
     conn.close()
 
 def thread_init():
