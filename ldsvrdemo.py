@@ -48,13 +48,15 @@ def ldsvrpredict(testFeature, trainFeature, modelpara):
 
 def run():
     # load the trainFeature, trainDistribution, testFeature
-    features = np.loadtxt('features.txt')
-    distributions = np.loadtxt('distributions.txt')
-    trainFeature = features[259:]
-    trainDistribution = distributions[259:]
+    features = np.loadtxt('info.txt')
+    distributions = np.loadtxt('rating.txt')
+    trainFeature = features
+    #[259:]
+    trainDistribution = distributions
+    #[259:]
     # CVFeature = features[0:259]
     # CVDistribution = distributions[0:259]
-    testFeature = np.loadtxt('testFeature.txt')
+    #testFeature = np.loadtxt('testFeature.txt')
     print 'read trainFeature, trainDistribution, CVFeature done.'
 
     # initialize the model parameters.
@@ -71,33 +73,38 @@ def run():
     para['par']=1*np.mean(spatial.distance.pdist(trainFeature))
     print para['par']
 
-    Beta = np.loadtxt('Beta.txt')
-    b = np.loadtxt('b.txt')
+    
     modelpara = {}
-    if Beta.size != 0 and b.size != 0 :
-        print 'read Beta&&b from files'
-        modelpara['Beta'] = Beta
-        modelpara['b'] = b
-        modelpara['ker'] = para['ker']
-        modelpara['par'] = para['par']
-    else:
-        print 'begin train.'
-        modelpara = ldsvrtrain(trainFeature, trainDistribution, para)
-        print 'train done.'
-        np.savetxt('Beta.txt', modelpara['Beta'])
-        np.savetxt('b.txt', modelpara['b'])
-        print 'write Beat&b to files.'
+
+    # Beta = np.loadtxt('Beta.txt')
+    # b = np.loadtxt('b.txt')
+    # if Beta.size != 0 and b.size != 0 :
+    #     print 'read Beta&&b from files'
+    #     modelpara['Beta'] = Beta
+    #     modelpara['b'] = b
+    #     modelpara['ker'] = para['ker']
+    #     modelpara['par'] = para['par']
+    # else:
+
+    print 'begin train.'
+    modelpara = ldsvrtrain(trainFeature, trainDistribution, para)
+    print 'train done.'
+    np.savetxt('Beta.txt', modelpara['Beta'])
+    np.savetxt('b.txt', modelpara['b'])
+    print 'write Beat&b to files.'
 
     # prediction
     # use trained model parameters to predict the distribution.
-    testPredict = ldsvrpredict(testFeature, trainFeature, modelpara);
-    np.savetxt('trainFeature.txt', trainFeature)
-    np.savetxt('trainDistribution.txt', trainDistribution)
-    # np.savetxt('CVFeature.txt', CVFeature)
-    # np.savetxt('CVDistribution.txt', CVDistribution)
-    # np.savetxt('CVPredict.txt', CVPredict)
-    np.savetxt('testPredict.txt', testPredict)
-    print 'test predict done.'
+
+
+    # testPredict = ldsvrpredict(testFeature, trainFeature, modelpara)
+    # np.savetxt('trainFeature.txt', trainFeature)
+    # np.savetxt('trainDistribution.txt', trainDistribution)
+    # # np.savetxt('CVFeature.txt', CVFeature)
+    # # np.savetxt('CVDistribution.txt', CVDistribution)
+    # # np.savetxt('CVPredict.txt', CVPredict)
+    # np.savetxt('testPredict.txt', testPredict)
+    # print 'test predict done.'
 
 
 if __name__ == '__main__':

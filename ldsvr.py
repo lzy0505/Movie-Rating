@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import numpy as np
@@ -60,7 +59,7 @@ def kernelmatrix(ker, parameter, trainFeature, testFeature):
             D = testFeature.T.dot(trainFeature)
         else:
             D = testFeature.T.dot(testFeature)
-        k = np.exp((-np.arccos(D)**2).dot(np.linalg.inv(2*parameter.dot(parameter))))
+        k = np.exp((- np.arccos(D)**2).dot(np.linalg.inv(2*parameter.dot(parameter))))
     else:
         print 'Unsupported kernel: ', ker
     return k
@@ -97,7 +96,7 @@ def ldsvrmsvr(x, y, para):
     # normalization
     y = y / np.tile(np.sum(y.T, axis=0, keepdims=1).T, (1, n_k))
     # use sigmodi function to the trainDistribution
-    y = -np.log(1.0/y - 1)
+    y = - np.log(1.0/y - 1)
     print 'process the trainDistribution done.'
 
     n_m = x.shape[0]
@@ -247,7 +246,7 @@ def ldsvrmsvr(x, y, para):
         while Lp[k, 0] > Lp[k-1, 0]:
             print 'enter eta loop.'
             # modify step length
-            eta = eta/10;
+            eta = eta/10
             # restore i1
             i1 = i1_a
             # Beta: m x k

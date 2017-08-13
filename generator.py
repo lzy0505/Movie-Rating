@@ -1,5 +1,6 @@
 import MySQLdb
 from movie import Movie
+import numpy as np
 #SQL variables
 mysql_ip = 'localhost'
 mysql_user = 'root'
@@ -28,8 +29,8 @@ runtime_max=0
 runtime_min=1000
 
 #output variables
-info_output=[]
-rating_output=[]
+info_output=None
+rating_output=None
 
 
 def connect_to_sql():
@@ -88,34 +89,36 @@ def scan_column():
     except Exception as e:
             print ' - SCAN_COLUMN - An {} exception occured'.format(e)
 
-def generate_table():
+def generate_matrices():
     global cur,conn
     global year_max,year_min,runtime_max,runtime_min
-    printvars()
+    global info_output,rating_output
+    #printvars()
     try:
         cur.execute('SELECT id FROM new_movies')
         id_result=cur.fetchall()
         conn.commit()
+        info_output=np.zeros((len(id_result), len(values)), dtype=np.double)
+        rating_output=np.zeros((len(id_result), 10), dtype=np.double)
+        row_index=0
         for movie_id in id_result:
-            movie_info=[]
             movie_rating=[]
             rating_sum=0.0
-            print ' - SCAN_ROW - ID: %s Scanning.' % movie_id[0]
             for keyword in info_cols:
                 cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
                 result = cur.fetchall()
                 if keyword=="year":
                     var=(float(result[0][0])-year_min)/(year_max-year_min)
-                    movie_info.append(var)
+                    info_output[row_index,0]=var
                 elif keyword=="runtimes":
                     var=(float(result[0][0])-runtime_min)/(runtime_max-runtime_min)
-                    movie_info.append(var)
+                    info_output[row_index,1]=var
                 else:
                     flag=0.0
                     #TODO question?
                     for i in xrange(values_index[info_cols.index(keyword)],values_index[info_cols.index(keyword)+1]-1):
                         if result[0][0] == '': 
-                            movie_info.append(0.0)
+                            info_output[row_index,i]=0.0
                         else:
                             r=0.0
                             for value in result[0][0].split('$'): 
@@ -123,10 +126,9 @@ def generate_table():
                                     r=1.0
                                 else:
                                     flag=1.0
-                            movie_info.append(r)
-                    movie_info.append(flag)   
+                            info_output[row_index,i]=r
+                    info_output[row_index,values_index[info_cols.index(keyword)+1]-1]=flag  
                 conn.commit()
-            print len(movie_info)
             for keyword in rating_cols:
                 cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
                 result = cur.fetchall()
@@ -134,10 +136,11 @@ def generate_table():
                 movie_rating.append(float(result[0][0]))
                 conn.commit()
             for i in xrange(0,len(movie_rating)):
-                movie_rating[i]=movie_rating[i]/rating_sum
+                rating_output[row_index,i]=movie_rating[i]/rating_sum
             print ' - SCAN_ROW - ID: %s Scan successfully.' % movie_id[0]
+            row_index+=1
     except Exception as e:
-            print ' - GENERATE_TABLE - An {} exception occured'.format(e)
+            print ' - GENERATE_MATRICES - An {} exception occured'.format(e)
     movie=[]
 
 
@@ -145,13 +148,15 @@ def printvars():
     print len(values)
     print values
     print values_index
-    #print str(year_max)+' '+str(year_min)
-    #print str(runtime_max) +' ' + str(runtime_min)
+    print str(year_max)+' '+str(year_min)
+    print str(runtime_max) +' ' + str(runtime_min)
 
 if __name__ == '__main__':
     connect_to_sql()
     scan_column()
-    generate_table()
+    generate_matrices()
+    np.savetxt('info.txt', info_output)
+    np.savetxt('rating.txt', rating_output)
     conn.close()
     print 'Done crawling data from IMDB!'
 

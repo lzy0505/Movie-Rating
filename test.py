@@ -92,7 +92,7 @@ def get_Info():
 
         try:
 
-            m_id = '5013056'
+            m_id = '1322393'
 
             # #movieID.get()
 
@@ -199,7 +199,7 @@ def get_Info():
 
             # print  movie.get('runtimes')
 
-            print movie.get('runtimes')
+            print movie.get('full-size cover url')
 
             # #Rating 
 
@@ -209,7 +209,7 @@ def get_Info():
             
           # movieID.task_done()
 
-        except imdb.IMDbDataAccessError , e:
+        except imdb.IMDbError , e:
 
             #movieID.put(m_id)
 

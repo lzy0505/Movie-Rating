@@ -21,10 +21,10 @@ movie_IDs = Queue(maxsize = 500)
 movies = Queue(maxsize = 500)
 
 # the time range where we search for movies
-begin_year = 2017
+begin_year = 2015
 end_year = 2017
 
-begin_month = 7
+begin_month = 6
 end_month = 7
 
 ## Below are variables associated with database
@@ -40,21 +40,27 @@ def get_IDs():
     Get the movie IDs by crawling the IMDB website. We will later use these
     IDs to get more information about the movie using IMDbPy.
     '''
-    for year, month in zip(range(begin_year, end_year+1), range(begin_month, end_month+1)):
-        url = imdb_new_movie_url + ( '%d-%02d' % (year, month) )
+    for year in range(begin_year, end_year+1):
+        for month in range(1, 12+1):
+            if(year==begin_year and month<begin_month):
+                continue
+            elif(year==end_year and month>=end_month):
+                break
+            else:   
+                url = imdb_new_movie_url + ( '%d-%02d' % (year, month) )
 
-        print " - GET_ID - movie url: ", url
+                print " - GET_ID - movie url: ", url
 
-        soup = BeautifulSoup(requests.get(url).content, "lxml")
+                soup = BeautifulSoup(requests.get(url).content, "lxml")
 
-        list_item = soup.findAll(True, {'class': "list_item"})
-        for item in list_item:
-            h4 = item.findAll('h4')
-            for h in h4:
-                m_id = h.find('a').get('href')
-                m_id = m_id[9: m_id.index('?')-1]
-                movie_IDs.put(m_id)
-                print " - GET_ID - movie ID: ", m_id
+                list_item = soup.findAll(True, {'class': "list_item"})
+                for item in list_item:
+                    h4 = item.findAll('h4')
+                    for h in h4:
+                        m_id = h.find('a').get('href')
+                        m_id = m_id[9: m_id.index('?')-1]
+                        movie_IDs.put(m_id)
+                        print " - GET_ID - movie ID: ", m_id
 
 def get_info():
     while True:
@@ -68,7 +74,7 @@ def get_info():
             #Title string
             new_movie.title = movie.get('title')
             #Poster url string
-            new_movie.cover_url=movie.get('cover url')
+            new_movie.cover_url=movie.get('full-size cover url')
             #Genres string list
             if movie.has_key('genres'):
                 counter=0
@@ -101,6 +107,7 @@ def get_info():
             #2nd Actor
             new_movie.cast_2=movie.get('cast')[1]
             #3rd Actor
+            movie.get('cast')
             new_movie.cast_3=movie.get('cast')[2]
             #Country string list
             if movie.has_key('countries'):
@@ -205,24 +212,30 @@ def get_info():
                 new_movie.year=movie.get('year')
             #Running time string list
             if movie.has_key('runtimes'):
-                new_movie.runtimes=movie.get('runtimes')[0]
+                if movie.get('runtimes')[0].has_key('USA'):
+                    new_movie.runtimes=new_movie.runtimes[0]['USA']
+                else:
+                    new_movie.runtimes=movie.get('runtimes')[0]
             
             #Rating 
             imdb_access.update(movie, info=('vote details'))
             new_movie.number_of_votes=movie.get('number of votes')
             
-            
             movies.put(new_movie)
             movie_IDs.task_done()
         except Exception ,e:
             print ' - GET_INFO -  An {} exception occured'.format(e),m_id
-
+            movie_IDs.put(m_id)
            # sleep(2)
+        if movie_IDs.empty():
+                break
 
 def store_movies():
     conn = MySQLdb.connect(mysql_ip, mysql_user, mysql_passwd, mysql_db, charset='utf8')
     cur = conn.cursor()
     while True:
+        if movies.empty():
+                break
         try:
             new_movie = movies.get()
             cur.execute(
@@ -262,6 +275,7 @@ def store_movies():
             conn.commit()
             print ' - STORE_MOVIE - ID: %s success.' % new_movie.id
             movies.task_done()
+            
         except Exception as e:
             print ' - STORE_MOVIE - ID: %s An {} exception occured'.format(e) % new_movie.id
     conn.close()
@@ -278,7 +292,6 @@ def thread_init():
 if __name__ == '__main__':
     thread_init()
     get_IDs()
-
     movie_IDs.join()
     movies.join()
     print 'Done crawling data from IMDB!'
