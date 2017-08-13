@@ -15,6 +15,8 @@ rating_cols=['number_of_votes_1','number_of_votes_2','number_of_votes_3',
 'number_of_votes_4','number_of_votes_5','number_of_votes_6','number_of_votes_7','number_of_votes_8',
 'number_of_votes_9','number_of_votes_10']
 
+#threshold=[0,0,0,0,5,5,5,5,5,5,10,10,10,10,10,10,10,20]
+threshold=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 #temporary variables
 values=[]
@@ -63,16 +65,25 @@ def scan_column():
                         elif instance<runtime_min:
                             runtime_min=instance
                 values.append(keyword)
-                index=index+1
+                index+=1
             else:
+                temp_values_counter=[]
+                temp_values=[]
                 for instance in result:
                     for i in instance[0].split('$'):
-                        if values.count(i)==0:
-                            values.append(i)
-                            index=index+1
-            
+                        if temp_values.count(i)==0:
+                            temp_values.append(i)
+                            temp_values_counter.append(1)
+                        else:
+                            temp_values_counter[temp_values.index(i)]+=1
+                for i in xrange(0,len(temp_values_counter)):
+                    if temp_values_counter[i]>threshold[info_cols.index(keyword)]:
+                        values.append(temp_values[i])
+                        index+=1
+                values.append('others_%s' % keyword)
+                index+=1        
             conn.commit()
-#            print ' - SCAN_COLUMN - Keyword: %s Scan successfully.' % keyword
+            print ' - SCAN_COLUMN - Keyword: %s Scan successfully.' % keyword
         values_index.append(index)
     except Exception as e:
             print ' - SCAN_COLUMN - An {} exception occured'.format(e)
@@ -100,7 +111,9 @@ def generate_table():
                     var=(float(result[0][0])-runtime_min)/(runtime_max-runtime_min)
                     movie_info.append(var)
                 else:
-                    for i in xrange(values_index[info_cols.index(keyword)],values_index[info_cols.index(keyword)+1]):
+                    flag=0.0
+                    #TODO question?
+                    for i in xrange(values_index[info_cols.index(keyword)],values_index[info_cols.index(keyword)+1]-1):
                         if result[0][0] == '': 
                             movie_info.append(0.0)
                         else:
@@ -108,8 +121,12 @@ def generate_table():
                             for value in result[0][0].split('$'): 
                                 if values[i] == value:
                                     r=1.0
+                                else:
+                                    flag=1.0
                             movie_info.append(r)
+                    movie_info.append(flag)   
                 conn.commit()
+            print len(movie_info)
             for keyword in rating_cols:
                 cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
                 result = cur.fetchall()
