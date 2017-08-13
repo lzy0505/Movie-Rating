@@ -37,5 +37,7 @@ describe new_movies;
           
  select * from new_movies;
  
+SELECT genres FROM new_movies WHERE id= '6333056'
+ 
  
  

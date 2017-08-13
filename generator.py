@@ -18,7 +18,7 @@ rating_cols=['number_of_votes_1','number_of_votes_2','number_of_votes_3',
 
 #temporary variables
 values=[]
-keywords_index=[]
+values_index=[]
 
 year_max=0
 year_min=3000
@@ -45,7 +45,7 @@ def scan_column():
     try:
         index=0
         for keyword in info_cols:
-            keywords_index.append(index)
+            values_index.append(index)
             cur.execute('SELECT %s FROM new_movies' % keyword)
             result=cur.fetchall()
 
@@ -72,21 +72,64 @@ def scan_column():
                             index=index+1
             
             conn.commit()
-            print ' - SCAN_COLUMN - Keyword: %s Scan successfully.' % keyword
-
+#            print ' - SCAN_COLUMN - Keyword: %s Scan successfully.' % keyword
+        values_index.append(index)
     except Exception as e:
             print ' - SCAN_COLUMN - An {} exception occured'.format(e)
 
 def generate_table():
-    #TODO
+    global cur,conn
+    global year_max,year_min,runtime_max,runtime_min
     printvars()
+    try:
+        cur.execute('SELECT id FROM new_movies')
+        id_result=cur.fetchall()
+        conn.commit()
+        for movie_id in id_result:
+            movie_info=[]
+            movie_rating=[]
+            rating_sum=0.0
+            print ' - SCAN_ROW - ID: %s Scanning.' % movie_id[0]
+            for keyword in info_cols:
+                cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
+                result = cur.fetchall()
+                if keyword=="year":
+                    var=(float(result[0][0])-year_min)/(year_max-year_min)
+                    movie_info.append(var)
+                elif keyword=="runtimes":
+                    var=(float(result[0][0])-runtime_min)/(runtime_max-runtime_min)
+                    movie_info.append(var)
+                else:
+                    for i in xrange(values_index[info_cols.index(keyword)],values_index[info_cols.index(keyword)+1]):
+                        if result[0][0] == '': 
+                            movie_info.append(0.0)
+                        else:
+                            r=0.0
+                            for value in result[0][0].split('$'): 
+                                if values[i] == value:
+                                    r=1.0
+                            movie_info.append(r)
+                conn.commit()
+            for keyword in rating_cols:
+                cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
+                result = cur.fetchall()
+                rating_sum=rating_sum+float(result[0][0])
+                movie_rating.append(float(result[0][0]))
+                conn.commit()
+            for i in xrange(0,len(movie_rating)):
+                movie_rating[i]=movie_rating[i]/rating_sum
+            print ' - SCAN_ROW - ID: %s Scan successfully.' % movie_id[0]
+    except Exception as e:
+            print ' - GENERATE_TABLE - An {} exception occured'.format(e)
     movie=[]
 
+
 def printvars():
+    print len(values)
     print values
-    print keywords_index
-    print str(year_max)+' '+str(year_min)
-    print str(runtime_max) +' ' + str(runtime_min)
+    print values_index
+    #print str(year_max)+' '+str(year_min)
+    #print str(runtime_max) +' ' + str(runtime_min)
 
 if __name__ == '__main__':
     connect_to_sql()
