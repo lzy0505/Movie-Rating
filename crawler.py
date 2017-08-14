@@ -17,15 +17,15 @@ imdb_new_movie_url='http://www.imdb.com/movies-coming-soon/'
 imdb_access = imdb.IMDb()
 
 # the multi-processor queue of movie IDs
-movie_IDs = Queue(maxsize = 500)
+movie_IDs = Queue(maxsize = 1000)
 movies = Queue(maxsize = 500)
 
 # the time range where we search for movies
-begin_year = 2015
-end_year = 2017
+begin_year = 2011
+end_year = 2012
 
-begin_month = 6
-end_month = 7
+begin_month = 1
+end_month = 12
 
 ## Below are variables associated with database
 use_db = True
@@ -49,7 +49,7 @@ def get_IDs():
             else:   
                 url = imdb_new_movie_url + ( '%d-%02d' % (year, month) )
 
-                print " - GET_ID - movie url: ", url
+                print " - GET_ID - movie url: %s" % url
 
                 soup = BeautifulSoup(requests.get(url).content, "lxml")
 
@@ -60,7 +60,7 @@ def get_IDs():
                         m_id = h.find('a').get('href')
                         m_id = m_id[9: m_id.index('?')-1]
                         movie_IDs.put(m_id)
-                        print " - GET_ID - movie ID: ", m_id
+                        print " - GET_ID - movie ID: %s" % m_id
 
 def get_info():
     while True:
@@ -107,7 +107,6 @@ def get_info():
             #2nd Actor
             new_movie.cast_2=movie.get('cast')[1]
             #3rd Actor
-            movie.get('cast')
             new_movie.cast_3=movie.get('cast')[2]
             #Country string list
             if movie.has_key('countries'):
@@ -212,8 +211,8 @@ def get_info():
                 new_movie.year=movie.get('year')
             #Running time string list
             if movie.has_key('runtimes'):
-                if movie.get('runtimes')[0].has_key('USA'):
-                    new_movie.runtimes=new_movie.runtimes[0]['USA']
+                if str(movie.get('runtimes')[0]).find(':')!=-1:
+                    new_movie.runtimes=str(movie.get('runtimes')[0]).split(':')[1]
                 else:
                     new_movie.runtimes=movie.get('runtimes')[0]
             
@@ -221,21 +220,20 @@ def get_info():
             imdb_access.update(movie, info=('vote details'))
             new_movie.number_of_votes=movie.get('number of votes')
             
+
             movies.put(new_movie)
             movie_IDs.task_done()
+            print ' - GET_INFO -  ID: %s successfully.' %m_id
         except Exception ,e:
             print ' - GET_INFO -  An {} exception occured'.format(e),m_id
             movie_IDs.put(m_id)
-           # sleep(2)
-        if movie_IDs.empty():
-                break
+    sleep(60)
+        
 
 def store_movies():
     conn = MySQLdb.connect(mysql_ip, mysql_user, mysql_passwd, mysql_db, charset='utf8')
     cur = conn.cursor()
     while True:
-        if movies.empty():
-                break
         try:
             new_movie = movies.get()
             cur.execute(
@@ -273,7 +271,7 @@ def store_movies():
                         new_movie.number_of_votes[10],
                 ))
             conn.commit()
-            print ' - STORE_MOVIE - ID: %s success.' % new_movie.id
+            print ' - STORE_MOVIE - ID: %s successfully.' % new_movie.id
             movies.task_done()
             
         except Exception as e:
