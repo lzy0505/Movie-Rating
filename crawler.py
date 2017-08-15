@@ -21,11 +21,11 @@ movie_IDs = Queue(maxsize = 1000)
 movies = Queue(maxsize = 500)
 
 # the time range where we search for movies
-begin_year = 2011
-end_year = 2012
+begin_year = 2017
+end_year = 2018
 
-begin_month = 1
-end_month = 12
+begin_month = 8
+end_month = 1
 
 ## Below are variables associated with database
 use_db = True
@@ -34,6 +34,8 @@ mysql_ip = 'localhost'
 mysql_user = 'root'
 mysql_passwd = 'root'
 mysql_db = 'mv'
+mysql_table = 'future_movies'
+#'new_movies'
 
 def get_IDs():
     '''
@@ -102,12 +104,16 @@ def get_info():
                     if counter==5:
                         break
                 new_movie.director=new_movie.director[0:len(new_movie.director)-1]
+            
             #1st Actor
             new_movie.cast_1=movie.get('cast')[0]
-            #2nd Actor
-            new_movie.cast_2=movie.get('cast')[1]
-            #3rd Actor
-            new_movie.cast_3=movie.get('cast')[2]
+            
+            if len(movie.get('cast'))>= 2:
+                #2nd Actor
+                new_movie.cast_2=movie.get('cast')[1]
+            if len(movie.get('cast'))>= 3:
+                #3rd Actor
+                new_movie.cast_3=movie.get('cast')[2]
             #Country string list
             if movie.has_key('countries'):
                 counter=0
@@ -215,11 +221,11 @@ def get_info():
                     new_movie.runtimes=str(movie.get('runtimes')[0]).split(':')[1]
                 else:
                     new_movie.runtimes=movie.get('runtimes')[0]
-            
             #Rating 
-            imdb_access.update(movie, info=('vote details'))
-            new_movie.number_of_votes=movie.get('number of votes')
-            
+            if mysql_table == 'new_movies':
+                imdb_access.update(movie, info=('vote details'))
+                new_movie.number_of_votes=movie.get('number of votes')
+                
 
             movies.put(new_movie)
             movie_IDs.task_done()
@@ -236,40 +242,66 @@ def store_movies():
     while True:
         try:
             new_movie = movies.get()
-            cur.execute(
-                "INSERT INTO new_movies values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                (new_movie.id, 
-                        new_movie.title,
-                        new_movie.cover_url,
-                        new_movie.genres,
-                        new_movie.color_info,
-                        new_movie.director,
-                        new_movie.cast_1,
-                        new_movie.cast_2,
-                        new_movie.cast_3,
-                        new_movie.countries,
-                        new_movie.languages,
-                        new_movie.writer,
-                        new_movie.editor,
-                        new_movie.cinematographer,
-                        new_movie.art_direction,
-                        new_movie.costume_designer,
-                        new_movie.original_music,
-                        new_movie.sound_mix,
-                        new_movie.production_companies,
-                        new_movie.year,
-                        new_movie.runtimes,
-                        new_movie.number_of_votes[1],
-                        new_movie.number_of_votes[2],
-                        new_movie.number_of_votes[3],
-                        new_movie.number_of_votes[4],
-                        new_movie.number_of_votes[5],
-                        new_movie.number_of_votes[6],
-                        new_movie.number_of_votes[7],
-                        new_movie.number_of_votes[8],
-                        new_movie.number_of_votes[9],
-                        new_movie.number_of_votes[10],
-                ))
+            if mysql_table == 'new_movies':
+                cur.execute(
+                    "INSERT INTO new_movies values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (new_movie.id, 
+                            new_movie.title,
+                            new_movie.cover_url,
+                            new_movie.genres,
+                            new_movie.color_info,
+                            new_movie.director,
+                            new_movie.cast_1,
+                            new_movie.cast_2,
+                            new_movie.cast_3,
+                            new_movie.countries,
+                            new_movie.languages,
+                            new_movie.writer,
+                            new_movie.editor,
+                            new_movie.cinematographer,
+                            new_movie.art_direction,
+                            new_movie.costume_designer,
+                            new_movie.original_music,
+                            new_movie.sound_mix,
+                            new_movie.production_companies,
+                            new_movie.year,
+                            new_movie.runtimes,
+                            new_movie.number_of_votes[1],
+                            new_movie.number_of_votes[2],
+                            new_movie.number_of_votes[3],
+                            new_movie.number_of_votes[4],
+                            new_movie.number_of_votes[5],
+                            new_movie.number_of_votes[6],
+                            new_movie.number_of_votes[7],
+                            new_movie.number_of_votes[8],
+                            new_movie.number_of_votes[9],
+                            new_movie.number_of_votes[10],
+                    ))
+            elif mysql_table == 'future_movies':
+                cur.execute(
+                    "INSERT INTO future_movies values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (new_movie.id, 
+                            new_movie.title,
+                            new_movie.cover_url,
+                            new_movie.genres,
+                            new_movie.color_info,
+                            new_movie.director,
+                            new_movie.cast_1,
+                            new_movie.cast_2,
+                            new_movie.cast_3,
+                            new_movie.countries,
+                            new_movie.languages,
+                            new_movie.writer,
+                            new_movie.editor,
+                            new_movie.cinematographer,
+                            new_movie.art_direction,
+                            new_movie.costume_designer,
+                            new_movie.original_music,
+                            new_movie.sound_mix,
+                            new_movie.production_companies,
+                            new_movie.year,
+                            new_movie.runtimes,
+                    ))
             conn.commit()
             print ' - STORE_MOVIE - ID: %s successfully.' % new_movie.id
             movies.task_done()

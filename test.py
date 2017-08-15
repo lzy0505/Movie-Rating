@@ -128,7 +128,8 @@ def get_Info():
            
             # #1st Actor
 
-            # print movie.get('cast')[0]
+            print len(movie.get('cast'))
+           
 
             # #2nd Actor
 
@@ -199,7 +200,7 @@ def get_Info():
 
             # print  movie.get('runtimes')
 
-            print movie.get('full-size cover url')
+            #print movie.get('full-size cover url')
 
             # #Rating 
 

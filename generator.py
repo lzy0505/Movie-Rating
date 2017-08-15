@@ -1,11 +1,15 @@
 import MySQLdb
 from movie import Movie
 import numpy as np
+import scipy.io as sio
+
 #SQL variables
 mysql_ip = 'localhost'
 mysql_user = 'root'
 mysql_passwd = 'root'
 mysql_db = 'mv'
+mysql_table='future_movies'
+#new_movies
 cur=None
 conn=None
 
@@ -16,8 +20,8 @@ rating_cols=['number_of_votes_1','number_of_votes_2','number_of_votes_3',
 'number_of_votes_4','number_of_votes_5','number_of_votes_6','number_of_votes_7','number_of_votes_8',
 'number_of_votes_9','number_of_votes_10']
 
-#threshold=[0,0,0,0,5,5,5,5,5,5,10,10,10,10,10,10,10,20]
-threshold=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+threshold=[0,0,0,0,2,2,2,2,2,2,3,3,3,3,3,3,3,7]
+#threshold=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 #temporary variables
 values=[]
@@ -95,7 +99,7 @@ def generate_matrices():
     global info_output,rating_output
     #printvars()
     try:
-        cur.execute('SELECT id FROM new_movies')
+        cur.execute('SELECT id FROM %s' % mysql_table)
         id_result=cur.fetchall()
         conn.commit()
         info_output=np.zeros((len(id_result), len(values)), dtype=np.double)
@@ -105,7 +109,7 @@ def generate_matrices():
             movie_rating=[]
             rating_sum=0.0
             for keyword in info_cols:
-                cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
+                cur.execute("SELECT %s FROM %s WHERE id= '%s'" % (keyword,mysql_table,str(movie_id[0])))
                 result = cur.fetchall()
                 if keyword=="year":
                     var=(float(result[0][0])-year_min)/(year_max-year_min)
@@ -129,19 +133,19 @@ def generate_matrices():
                             info_output[row_index,i]=r
                     info_output[row_index,values_index[info_cols.index(keyword)+1]-1]=flag  
                 conn.commit()
-            for keyword in rating_cols:
-                cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
-                result = cur.fetchall()
-                rating_sum=rating_sum+float(result[0][0])
-                movie_rating.append(float(result[0][0]))
-                conn.commit()
-            for i in xrange(0,len(movie_rating)):
-                rating_output[row_index,i]=movie_rating[i]/rating_sum
+            if mysql_table=='new_movies':
+                for keyword in rating_cols:
+                    cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
+                    result = cur.fetchall()
+                    rating_sum=rating_sum+float(result[0][0])
+                    movie_rating.append(float(result[0][0]))
+                    conn.commit()
+                for i in xrange(0,len(movie_rating)):
+                    rating_output[row_index,i]=movie_rating[i]/rating_sum
             print ' - SCAN_ROW - ID: %s Scan successfully.' % movie_id[0]
             row_index+=1
     except Exception as e:
             print ' - GENERATE_MATRICES - An {} exception occured'.format(e)
-    movie=[]
 
 
 def printvars():
@@ -155,9 +159,12 @@ if __name__ == '__main__':
     connect_to_sql()
     scan_column()
     generate_matrices()
-    np.savetxt('info.txt', info_output)
-    np.savetxt('rating.txt', rating_output)
+    if mysql_table=='new_movies':
+        np.savetxt('info.txt', info_output)
+        np.savetxt('rating.txt', rating_output)
+    elif mysql_table=='future_movies':
+        np.savetxt('f_info.txt', info_output)
     conn.close()
-    print 'Done crawling data from IMDB!'
+    print 'Done generating matrices from database!'
 
 
