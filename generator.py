@@ -142,6 +142,7 @@ def generate_matrices():
                     conn.commit()
                 for i in xrange(0,len(movie_rating)):
                     rating_output[row_index,i]=movie_rating[i]/rating_sum
+                
             print ' - SCAN_ROW - ID: %s Scan successfully.' % movie_id[0]
             row_index+=1
     except Exception as e:

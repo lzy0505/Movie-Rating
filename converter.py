@@ -24,9 +24,11 @@ elif my_sql_table=='new_movies':
     f=np.loadtxt('info.txt',dtype='double')
     d=np.loadtxt('rating.txt',dtype='double')
 
+    selected_index=[]
 
     pre_index=0
     now_index=random.randint(1,num_of_partition+1)
+    selected_index.append(now_index)
     trainFeature=f[pre_index:now_index]
     trainDistribution=d[pre_index:now_index]
     testFeature=f[now_index:now_index+1]
@@ -39,8 +41,7 @@ elif my_sql_table=='new_movies':
 
     for i in xrange(1,int(r/num_of_partition)):
         now_index=random.randint(i*num_of_partition,(i+1)*num_of_partition+1)
-        # print "%d-%d"% (i*num_of_partition,(i+1)*num_of_partition+1)
-        # print now_index
+        selected_index.append(now_index)
         trainFeature=np.concatenate((trainFeature,f[pre_index:now_index]))
         trainDistribution=np.concatenate((trainDistribution,d[pre_index:now_index]))
         testFeature=np.concatenate((testFeature,f[now_index:now_index+1]))
@@ -63,4 +64,6 @@ elif my_sql_table=='new_movies':
     print testDistribution.shape
     print trainNum+testNum
 
-    sio.savemat('movieDataSet.mat',{'testDistribution':testDistribution,'testFeature':testFeature,'testNum':testNum,'trainDistribution':trainDistribution,'trainFeature':trainFeature,'trainNum':trainNum})
+    sio.savemat('movieDataSet.mat',{'testDistribution':testDistribution,'testFeature':testFeature,'testNum':testNum,'trainDistribution':trainDistribution,'trainFeature':trainFeature,'trainNum':trainNum,'testIndex':selected_index})
+
+    

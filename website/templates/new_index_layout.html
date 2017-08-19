@@ -1,0 +1,28 @@
+{% extends "index_layout.html" %}
+{% block body %}
+<h1>Movie Rating Project</h1>
+    <div class="nav"><table border="0">
+        <tr><td><a href="{{url_for('oldtable')}}">Old Movies Rating Comparing
+        </td>
+        <td>New Movies Rating Predicting
+        </td>
+        </tr>
+        </table>
+    </div>
+    <table border="0">
+            <ul class=entries> 
+            <tr>
+            {% for movie in movies %}
+                    <td style=" width:200px;"><p><img src="{{movie[2]}}" width="180" height="240">
+                        </p>
+                        <a href=""> {{movie[1]}}</a>
+                    </td>
+                {% if loop.index % 5 == 0 %}
+                    </tr>
+                    <tr>
+                {% endif %} 
+            {% endfor %}
+            </tr>
+        </ul>
+        </table>
+{% endblock %}
