@@ -1,0 +1,85 @@
+{% extends "index_layout.html" %}
+
+
+{% block body %}
+
+<h1>Movie Rating Project</h1>
+<script src="{{url_for('static', filename='highcharts.js') }}"></script>
+
+
+
+
+    <div class="nav"><table border="0">
+        <tr><td><a href="{{url_for('oldpreview')}}">Old Movies Rating Comparing
+        </td>
+        <td><a href="{{url_for('newpreview')}}">New Movies Rating Predicting
+        </td>
+        </tr>
+        </table>
+    </div>
+    <table border="0">
+        <tr><td><p><img src="{{movie['cover_url'][0]}}" width="300" height="400">
+                        </p>
+            </td>
+            </tr>
+    {%for keyword in info_cols%}
+        <tr><td>
+            {%if keyword == 'runtimes' %}
+                {{keyword}}:{{movie[keyword]}}mins
+            {% elif keyword == 'year' %}
+                {{keyword}}:{{movie[keyword]}}
+            {% elif movie[keyword]=='No information' %}
+                {{keyword}}:-,  
+            {% else %}
+                {{keyword}}:
+                {%for item in movie[keyword] %}
+                    {{item}},
+                {% endfor %}
+            {% endif %}
+            </td>
+            </tr>
+        
+    {% endfor %}
+        </table>
+        <div id="container" style="max-width: 700px; height: 400px; margin:left"></div>
+        <script type="text/javascript">
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'line'
+                },
+                title: {
+                    text: 'Rating Distribution Prediction'
+                },
+                xAxis: {
+                    categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+                },
+                yAxis: {
+                    title: {
+                        text: 'Percentage(%)'
+                    }
+                },
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    }
+                },
+                series: [{
+                    name: 'Predicted Distribution',
+                    data: [{{movie['f_number_of_votes_1']}}*100, 
+                    {{movie['f_number_of_votes_2']}}*100, 
+                    {{movie['f_number_of_votes_3']}}*100, 
+                    {{movie['f_number_of_votes_4']}}*100, 
+                    {{movie['f_number_of_votes_5']}}*100, 
+                    {{movie['f_number_of_votes_6']}}*100, 
+                    {{movie['f_number_of_votes_7']}}*100, 
+                    {{movie['f_number_of_votes_8']}}*100, 
+                    {{movie['f_number_of_votes_9']}}*100, 
+                    {{movie['f_number_of_votes_10']}}*100]
+                }]
+            });
+                    </script>
+{% endblock %}
+
