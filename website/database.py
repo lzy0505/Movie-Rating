@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.io as sio
 import MySQLdb
-
+from decimal import *
 #SQL variables
 mysql_ip = 'localhost'
 mysql_user = 'root'
@@ -67,17 +67,12 @@ def get_instance_basic(table):
 
 def get_instance_details(table,id):
     connect_to_sql()
+    getcontext().prec = 5
     movie={}
     if table=='new_movies':
         data=sio.loadmat('o_movieDataSet.mat')
         distr=sio.loadmat('o_predictDistribution.mat')
-        distr['preDistribution']
         movie_rating=[]
-        for i in data['testIndex'][0]:
-            entry=[]
-            cur.execute("SELECT id,title,cover_url,year FROM %s LIMIT %s,1;" % (table,i))
-            result = cur.fetchone()
-            #print distr['preDistribution'][j]
 
         for keyword in info_cols:
             cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(id)))
@@ -87,16 +82,16 @@ def get_instance_details(table,id):
             else:
                 templist=[]
                 if result[0]=='':
-                    movie[keyword]='No information'
+                    movie[keyword]='-'
                 else:
                     for value in result[0].split('$'):
-                        # if len(value.split('&'))>=2: 
-                        #     templist.append(value.split('&')[1])
-                        # else:
-                        #     templist.append(value)
-                        templist.append(value)
+                        if len(value.split('&'))>=2: 
+                            templist.append(value.split('&')[1])
+                        else:
+                            templist.append(value)
                     movie[keyword]=templist                    
             conn.commit()
+        rating_sum=0
         for keyword in rating_cols:
             cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(id)))
             result = cur.fetchone()
@@ -104,8 +99,24 @@ def get_instance_details(table,id):
             movie_rating.append(float(result[0]))
             conn.commit()
         for i in xrange(0,len(movie_rating)):
-            movie[rating_cols[i]]=movie_rating[i]/rating_sum 
-        print movie
+            movie['r_'+rating_cols[i]]=int(movie_rating[i]/rating_sum*10000)
+
+        cur.execute("SELECT id FROM new_movies;")
+        result = cur.fetchall()
+        conn.commit()
+        index=0
+        for m in result:
+            if m[0]== id:
+                break
+            index+=1
+        for i in xrange(0,len(data['testIndex'][0])):
+            if index == data['testIndex'][0][i]:
+                index= i
+
+        for i in xrange(0,10):
+            movie['p_'+rating_cols[i]]=int(distr['preDistribution'][index][i]*10000)
+ 
+        # print movie
         return movie
 
     elif table =='future_movies':
@@ -119,7 +130,7 @@ def get_instance_details(table,id):
             else:
                 templist=[]
                 if result[0]=='':
-                    movie[keyword]='No information'
+                    movie[keyword]='-'
                 else:
                     for value in result[0].split('$'):
                         if len(value.split('&'))>=2: 
@@ -138,7 +149,7 @@ def get_instance_details(table,id):
                 break
             index+=1
         for i in xrange(0,10):
-            movie['f_'+rating_cols[i]]=distr['preDistribution'][index][i]
+            movie['f_'+rating_cols[i]]=int(distr['preDistribution'][index][i]*10000)
 
         # print movie
         return movie
@@ -147,7 +158,7 @@ def get_instance_details(table,id):
 
 
 if __name__ == '__main__':
-    get_instance_details('future_movies','5362988')
+    get_instance_details('new_movies','0479997')
 
 
 

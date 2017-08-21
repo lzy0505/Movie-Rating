@@ -15,7 +15,7 @@
         {% for movie in movies %}
                 <td style=" width:200px;"><p><img src="{{movie[2]}}" width="180" height="240">
                     </p>
-                    <a href=""> {{movie[1]}}</a>
+                    <a href="/olddetails/{{movie[0]}}"> {{movie[1]}}</a>
                 </td>
             {% if loop.index % 5 == 0 %}
                 </tr>

@@ -28,8 +28,6 @@
                 {{keyword}}:{{movie[keyword]}}mins
             {% elif keyword == 'year' %}
                 {{keyword}}:{{movie[keyword]}}
-            {% elif movie[keyword]=='No information' %}
-                {{keyword}}:-,  
             {% else %}
                 {{keyword}}:
                 {%for item in movie[keyword] %}
@@ -51,6 +49,7 @@
                     text: 'Rating Distribution Prediction'
                 },
                 xAxis: {
+                    text: 'Rating Points',
                     categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
                 },
                 yAxis: {
@@ -68,16 +67,16 @@
                 },
                 series: [{
                     name: 'Predicted Distribution',
-                    data: [{{movie['f_number_of_votes_1']}}*100, 
-                    {{movie['f_number_of_votes_2']}}*100, 
-                    {{movie['f_number_of_votes_3']}}*100, 
-                    {{movie['f_number_of_votes_4']}}*100, 
-                    {{movie['f_number_of_votes_5']}}*100, 
-                    {{movie['f_number_of_votes_6']}}*100, 
-                    {{movie['f_number_of_votes_7']}}*100, 
-                    {{movie['f_number_of_votes_8']}}*100, 
-                    {{movie['f_number_of_votes_9']}}*100, 
-                    {{movie['f_number_of_votes_10']}}*100]
+                    data: [{{movie['f_number_of_votes_1']}}/100, 
+                    {{movie['f_number_of_votes_2']}}/100, 
+                    {{movie['f_number_of_votes_3']}}/100, 
+                    {{movie['f_number_of_votes_4']}}/100, 
+                    {{movie['f_number_of_votes_5']}}/100, 
+                    {{movie['f_number_of_votes_6']}}/100, 
+                    {{movie['f_number_of_votes_7']}}/100, 
+                    {{movie['f_number_of_votes_8']}}/100, 
+                    {{movie['f_number_of_votes_9']}}/100, 
+                    {{movie['f_number_of_votes_10']}}/100]
                 }]
             });
                     </script>

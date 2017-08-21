@@ -35,7 +35,7 @@
   
 describe new_movies;
           
-#select * from new_movies;
+#select * from new_movies where id='0479997';
  
  
  

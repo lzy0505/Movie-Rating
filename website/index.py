@@ -35,7 +35,7 @@ def newdetails(movieid):
     return render_template('new_details_layout.html',info_cols=info_cols,movie=movie)
 
 @app.route('/olddetails/<movieid>')
-def newdetails(movieid):
+def olddetails(movieid):
     movie=database.get_instance_details('new_movies',movieid)
     return render_template('old_details_layout.html',info_cols=info_cols,movie=movie)
 

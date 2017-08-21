@@ -48,9 +48,10 @@
                     type: 'line'
                 },
                 title: {
-                    text: 'Rating Distribution Prediction'
+                    text: 'Rating Distribution Comparison'
                 },
                 xAxis: {
+                    text: 'Rating Points',
                     categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
                 },
                 yAxis: {
@@ -68,28 +69,28 @@
                 },
                 series: [{
                     name: 'Predicted Distribution',
-                    data: [{{movie['f_number_of_votes_1']}}*100, 
-                    {{movie['p_number_of_votes_2']}}*100, 
-                    {{movie['p_number_of_votes_3']}}*100, 
-                    {{movie['p_number_of_votes_4']}}*100, 
-                    {{movie['p_number_of_votes_5']}}*100, 
-                    {{movie['p_number_of_votes_6']}}*100, 
-                    {{movie['p_number_of_votes_7']}}*100, 
-                    {{movie['p_number_of_votes_8']}}*100, 
-                    {{movie['p_number_of_votes_9']}}*100, 
-                    {{movie['p_number_of_votes_10']}}*100]
+                    data: [{{movie['p_number_of_votes_1']}}/100, 
+                    {{movie['p_number_of_votes_2']}}/100, 
+                    {{movie['p_number_of_votes_3']}}/100, 
+                    {{movie['p_number_of_votes_4']}}/100, 
+                    {{movie['p_number_of_votes_5']}}/100, 
+                    {{movie['p_number_of_votes_6']}}/100, 
+                    {{movie['p_number_of_votes_7']}}/100, 
+                    {{movie['p_number_of_votes_8']}}/100, 
+                    {{movie['p_number_of_votes_9']}}/100, 
+                    {{movie['p_number_of_votes_10']}}/100]
                 },{
                     name: 'Real Distribution',
-                    data: [{{movie['f_number_of_votes_1']}}*100, 
-                    {{movie['r_number_of_votes_2']}}*100, 
-                    {{movie['r_number_of_votes_3']}}*100, 
-                    {{movie['r_number_of_votes_4']}}*100, 
-                    {{movie['r_number_of_votes_5']}}*100, 
-                    {{movie['r_number_of_votes_6']}}*100, 
-                    {{movie['r_number_of_votes_7']}}*100, 
-                    {{movie['r_number_of_votes_8']}}*100, 
-                    {{movie['r_number_of_votes_9']}}*100, 
-                    {{movie['r_number_of_votes_10']}}*100]
+                    data: [{{movie['r_number_of_votes_1']}}/100, 
+                    {{movie['r_number_of_votes_2']}}/100, 
+                    {{movie['r_number_of_votes_3']}}/100, 
+                    {{movie['r_number_of_votes_4']}}/100, 
+                    {{movie['r_number_of_votes_5']}}/100, 
+                    {{movie['r_number_of_votes_6']}}/100, 
+                    {{movie['r_number_of_votes_7']}}/100, 
+                    {{movie['r_number_of_votes_8']}}/100, 
+                    {{movie['r_number_of_votes_9']}}/100, 
+                    {{movie['r_number_of_votes_10']}}/100]
                 }
                 ]
             });
