@@ -1,5 +1,8 @@
 from flask import Flask,render_template,request,url_for,redirect
 import MySQLdb
+from flask_nav import Nav
+from flask_nav.elements import *
+from flask_bootstrap import Bootstrap
 import database
 
 
@@ -7,10 +10,18 @@ info_cols=['title','year','runtimes','genres','color_info','director','cast_1','
 'writer','editor','cinematographer','art_direction','costume_designer','original_music','sound_mix',
 'production_companies']
 
+nav=Nav()
 
+nav.register_element('top', Navbar(
+    "Movie Rating Project",
+    View('Old Movies Rating Comparing', 'oldpreview'),
+    View('New Movies Rating Predicting', 'newpreview')
+))
 
 app = Flask(__name__)
 
+nav.init_app(app)
+Bootstrap(app)
 
 
 @app.route('/')

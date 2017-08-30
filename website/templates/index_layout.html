@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title> Movie Rating Project</title>
+    
+</head>
+
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}">      
+
+{% block body %}
+<h1>Movie Rating Project</h1>
+    <div class="nav"><table border="0">
+            <tr><td><a href="{{url_for('oldpreview')}}">Old Movies Rating Comparing
+            </td>
+            <td><a href="{{url_for('newpreview')}}">New Movies Rating Predicting
+            </td>
+            </tr>
+            </table>
+    </div>
+{% endblock %}
+
+

@@ -1,14 +1,7 @@
-{% extends "index_layout.html" %}
+{% extends "bootstrap/base.html" %}
 {% block body %}
-<h1>Movie Rating Project</h1>
-    <div class="nav"><table border="0">
-        <tr><td>Old Movies Rating Comparing
-        </td>
-        <td><a href="{{url_for('newpreview')}}">New Movies Rating Predicting
-        </td>
-        </tr>
-        </table>
-    </div>
+    {{nav.top.render()}}
+
     <table border="0">
         <ul class=entries> 
         <tr>
