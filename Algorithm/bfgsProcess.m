@@ -20,7 +20,7 @@ function [target,gradient] = bfgsProcess(weights)
 %
 
 % Load the data set.
-load f_movieDataSet;
+load o_movieDataSet;
 
 % lambda=0.5;
 modProb = exp(trainFeature * weights);  % size_sam * size_Y

@@ -2,7 +2,7 @@ import numpy as np
 import scipy.io as sio
 import random
 
-my_sql_table='new_movies'
+my_sql_table='future_movies'
 
 if my_sql_table=='future_movies':
     trainFeature=np.loadtxt('info.txt',dtype='double')
@@ -18,7 +18,7 @@ if my_sql_table=='future_movies':
     print trainDistribution.shape
     print testFeature.shape
 
-    sio.savemat('movieDataSet.mat',{'testDistribution':testDistribution,'testFeature':testFeature,'testNum':testNum,'trainDistribution':trainDistribution,'trainFeature':trainFeature,'trainNum':trainNum})
+    sio.savemat('f_movieDataSet.mat',{'testDistribution':testDistribution,'testFeature':testFeature,'testNum':testNum,'trainDistribution':trainDistribution,'trainFeature':trainFeature,'trainNum':trainNum})
 elif my_sql_table=='new_movies':
     num_of_partition=10
     f=np.loadtxt('info.txt',dtype='double')
@@ -64,6 +64,6 @@ elif my_sql_table=='new_movies':
     print testDistribution.shape
     print trainNum+testNum
 
-    sio.savemat('movieDataSet.mat',{'testDistribution':testDistribution,'testFeature':testFeature,'testNum':testNum,'trainDistribution':trainDistribution,'trainFeature':trainFeature,'trainNum':trainNum,'testIndex':selected_index})
+    sio.savemat('o_movieDataSet.mat',{'testDistribution':testDistribution,'testFeature':testFeature,'testNum':testNum,'trainDistribution':trainDistribution,'trainFeature':trainFeature,'trainNum':trainNum,'testIndex':selected_index})
 
     

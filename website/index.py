@@ -1,4 +1,4 @@
-from flask import Flask,render_template,request,url_for
+from flask import Flask,render_template,request,url_for,redirect
 import MySQLdb
 import database
 
@@ -13,10 +13,9 @@ app = Flask(__name__)
 
 
 
-
 @app.route('/')
 def home():
-    return render_template('index_layout.html')
+    return redirect(url_for('oldpreview'))
 
 @app.route('/oldpreview')
 def oldpreview():

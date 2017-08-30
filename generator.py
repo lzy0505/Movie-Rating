@@ -73,7 +73,10 @@ def scan_column():
             else:
                 temp_values_counter=[]
                 temp_values=[]
+                nullflag=False
                 for instance in result:
+                    if instance[0] =='':
+                        nullflag=True
                     for i in instance[0].split('$'):
                         if temp_values.count(i)==0:
                             temp_values.append(i)
@@ -84,6 +87,9 @@ def scan_column():
                     if temp_values_counter[i]>threshold[info_cols.index(keyword)]:
                         values.append(temp_values[i])
                         index+=1
+                if nullflag:
+                    values.append('Null_%s' % keyword)
+                    index+=1
                 values.append('others_%s' % keyword)
                 index+=1        
             conn.commit()
@@ -121,6 +127,7 @@ def generate_matrices():
                     for i in xrange(values_index[info_cols.index(keyword)],values_index[info_cols.index(keyword)+1]-1):
                         if result[0][0] == '': 
                             info_output[row_index,i]=0.0
+                            info_output[row_index,values_index[info_cols.index(keyword)+1]-2]=1.0
                         else:
                             r=0.0
                             for value in result[0][0].split('$'): 

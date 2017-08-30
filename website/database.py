@@ -150,7 +150,7 @@ def get_instance_details(table,id):
             index+=1
         for i in xrange(0,10):
             movie['f_'+rating_cols[i]]=int(l_distr['preDistribution'][index][i]*10000)
-            movie['b_f_'+rating_cols[i]]=int(l_distr['preDistribution'][index][i]*10000)
+            movie['b_f_'+rating_cols[i]]=int(b_distr['preDistribution'][index][i]*10000)
         # print movie
         return movie
         

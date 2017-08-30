@@ -15,7 +15,7 @@
 clear;
 clc;
 % Load the trainData and TestData.
-load f_movieDataSet;
+load o_movieDataSet;
 
 item=eye(size(trainFeature,2),size(trainDistribution,2));
 
@@ -29,8 +29,7 @@ fprintf('Training time of BFGS-LLD: %8.7f \n', toc);
 preDistribution = lldPredict(weights,testFeature);
 fprintf('Finish prediction of BFGS-LLD. \n');
 
-save b_f_predictDistribution preDistribution
-
+save b_o_predictDistribution preDistribution
 
 % To visualize two distribution and display some selected metrics of distance
 %for i=1:testNum

@@ -16,7 +16,7 @@
 clear;
 clc;
 % Load the trainData and ldsvrTestData. 
-load o_movieDataSet;
+load f_movieDataSet;
 
 % Initialize the model parameters.
 para.tol  = 1e-10; %tolerance during the iteration
@@ -34,7 +34,7 @@ fprintf('Training time of LDSVR: %8.7f \n', toc);
  preDistribution = ldsvrPredict(testFeature, trainFeature, modelpara);
  fprintf('Finish prediction of LDSVR. \n');
  
- save o_predictDistribution preDistribution
+ save f_predictDistribution preDistribution
  
 % To visualize two distribution and display some selected metrics of distance
 %for i=1:testNum
