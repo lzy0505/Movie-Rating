@@ -68,7 +68,7 @@
                     }
                 },
                 series: [{
-                    name: 'Predicted Distribution',
+                    name: 'Predicted Distribution(LDSVR)',
                     data: [{{movie['p_number_of_votes_1']}}/100, 
                     {{movie['p_number_of_votes_2']}}/100, 
                     {{movie['p_number_of_votes_3']}}/100, 
@@ -79,6 +79,18 @@
                     {{movie['p_number_of_votes_8']}}/100, 
                     {{movie['p_number_of_votes_9']}}/100, 
                     {{movie['p_number_of_votes_10']}}/100]
+                },{
+                    name: 'Predicted Distribution(BFGS)',
+                    data: [{{movie['b_p_number_of_votes_1']}}/100, 
+                    {{movie['b_p_number_of_votes_2']}}/100, 
+                    {{movie['b_p_number_of_votes_3']}}/100, 
+                    {{movie['b_p_number_of_votes_4']}}/100, 
+                    {{movie['b_p_number_of_votes_5']}}/100, 
+                    {{movie['b_p_number_of_votes_6']}}/100, 
+                    {{movie['b_p_number_of_votes_7']}}/100, 
+                    {{movie['b_p_number_of_votes_8']}}/100, 
+                    {{movie['b_p_number_of_votes_9']}}/100, 
+                    {{movie['b_p_number_of_votes_10']}}/100]
                 },{
                     name: 'Real Distribution',
                     data: [{{movie['r_number_of_votes_1']}}/100, 

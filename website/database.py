@@ -36,8 +36,6 @@ def get_instance_basic(table):
     connect_to_sql()
     if table=='new_movies':
         data=sio.loadmat('o_movieDataSet.mat')
-        distr=sio.loadmat('o_predictDistribution.mat')
-        distr['preDistribution']
         templist=[]
         for i in data['testIndex'][0]:
             entry=[]
@@ -71,7 +69,8 @@ def get_instance_details(table,id):
     movie={}
     if table=='new_movies':
         data=sio.loadmat('o_movieDataSet.mat')
-        distr=sio.loadmat('o_predictDistribution.mat')
+        l_distr=sio.loadmat('o_predictDistribution.mat')
+        b_distr=sio.loadmat('b_o_predictDistribution.mat')
         movie_rating=[]
 
         for keyword in info_cols:
@@ -114,13 +113,14 @@ def get_instance_details(table,id):
                 index= i
 
         for i in xrange(0,10):
-            movie['p_'+rating_cols[i]]=int(distr['preDistribution'][index][i]*10000)
- 
+            movie['p_'+rating_cols[i]]=int(l_distr['preDistribution'][index][i]*10000)
+            movie['b_p_'+rating_cols[i]]=int(b_distr['preDistribution'][index][i]*10000)
         # print movie
         return movie
 
     elif table =='future_movies':
-        distr=sio.loadmat('f_predictDistribution.mat')
+        l_distr=sio.loadmat('f_predictDistribution.mat')
+        b_distr=sio.loadmat('b_f_predictDistribution.mat')
         for keyword in info_cols:
             cur.execute("SELECT %s FROM future_movies WHERE id= '%s'" % (keyword,str(id)))
             result = cur.fetchone()
@@ -149,8 +149,8 @@ def get_instance_details(table,id):
                 break
             index+=1
         for i in xrange(0,10):
-            movie['f_'+rating_cols[i]]=int(distr['preDistribution'][index][i]*10000)
-
+            movie['f_'+rating_cols[i]]=int(l_distr['preDistribution'][index][i]*10000)
+            movie['b_f_'+rating_cols[i]]=int(l_distr['preDistribution'][index][i]*10000)
         # print movie
         return movie
         

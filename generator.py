@@ -55,7 +55,6 @@ def scan_column():
             values_index.append(index)
             cur.execute('SELECT %s FROM new_movies' % keyword)
             result=cur.fetchall()
-
             if keyword=='year' or keyword=='runtimes':
                 for instance in result:
                     instance=int(instance[0])
@@ -119,7 +118,6 @@ def generate_matrices():
                     info_output[row_index,1]=var
                 else:
                     flag=0.0
-                    #TODO question?
                     for i in xrange(values_index[info_cols.index(keyword)],values_index[info_cols.index(keyword)+1]-1):
                         if result[0][0] == '': 
                             info_output[row_index,i]=0.0
