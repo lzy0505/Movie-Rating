@@ -1,5 +1,5 @@
 {% block doc -%}
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
 <html{% block html_attribs %}{% endblock html_attribs %}>
 {%- block html %}
   <head>
@@ -12,7 +12,8 @@
 
     {%- block styles %}
     <!-- Bootstrap -->
-    <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
+    <!-- <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet"> -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" integrity="sha384-+ENW/yibaokMnme+vBLnHMphUYxHs34h9lpdbSLuAwGkOKFRl4C34WkjazBtb7eT" crossorigin="anonymous">
     {%- endblock styles %}
     {%- endblock head %}
   </head>
@@ -22,10 +23,10 @@
     {%- endblock navbar %}
     {% block content -%}
     {%- endblock content %}
-
+   
     {% block scripts %}
-    <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
-    <script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
+    <!-- <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script> -->
+    <script src="{{url_for('.static', filename='js/bootstrap.js')}}"></script>
     {%- endblock scripts %}
     {%- endblock body %}
   </body>

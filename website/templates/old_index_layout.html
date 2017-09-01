@@ -1,21 +1,32 @@
 {% extends "bootstrap/base.html" %}
-{% block body %}
-    {{nav.top.render()}}
+{% block title %} Movie Rating {%endblock%}
 
-    <table border="0">
-        <ul class=entries> 
-        <tr>
+{% block scripts %}
+<link rel="stylesheet" href="{{url_for('.static', filename='css/style.css')}}">
+{{ super() }}
+{% endblock %}
+
+{% block navbar %}
+    {{nav.top.render(renderer='custom')}}
+{%endblock%}
+
+{% block content %}
+    <div class="center"> 
+    <table border="0" class="table">
+            <tr style="height:60px;">
+            </tr>
+        <tr style="height:290px;">
         {% for movie in movies %}
-                <td style=" width:200px;"><p><img src="{{movie[2]}}" width="180" height="240">
-                    </p>
-                    <a href="/olddetails/{{movie[0]}}"> {{movie[1]}}</a>
+                <td valign="middle" style="width:232px;"><center><p><img src="{{movie[2]}}" width="180px" height="240px">
+                    </p></center>
+                    <center><a href="/olddetails/{{movie[0]}}"> {{movie[1]}}</a></center>
                 </td>
             {% if loop.index % 5 == 0 %}
                 </tr>
-                <tr>
+                <tr style="height:290px;">
             {% endif %} 
         {% endfor %}
         </tr>
-    </ul>
     </table>
+    </div>
 {% endblock %}

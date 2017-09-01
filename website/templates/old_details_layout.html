@@ -1,35 +1,53 @@
 {% extends "bootstrap/base.html" %}
-{% block body %}
-    {{nav.top.render()}}
+{% block title %} Movie Rating {%endblock%}
 
-<script src="{{url_for('static', filename='highcharts.js') }}"></script>
+{% block scripts %}
+<link rel="stylesheet" href="{{url_for('.static', filename='css/style.css')}}">
+{{ super() }}
+{% endblock %}
 
+{% block navbar %}
+    {{nav.top.render(renderer='custom')}}
+{%endblock%}
 
-    <table border="0">
-        <tr><td><p><img src="{{movie['cover_url'][0]}}" width="300" height="400">
+{% block content %}
+<script src="{{url_for('static', filename='js/highcharts.js') }}"></script>
+    <div class="center"> 
+    <table border="0" style="max-width: 900px;  margin: 0 auto">
+        <tr style="height:70px;">
+        </tr>
+        <tr><td><p><img src="{{movie['cover_url'][0]}}" width="320" height="430">
                         </p>
             </td>
-            </tr>
-    {%for keyword in info_cols%}
-        <tr><td>
-            {%if keyword == 'runtimes' %}
-                {{keyword}}:{{movie[keyword]}}mins
-            {% elif keyword == 'year' %}
-                {{keyword}}:{{movie[keyword]}}
-            {% elif movie[keyword]=='No information' %}
-                {{keyword}}:-,  
-            {% else %}
-                {{keyword}}:
-                {%for item in movie[keyword] %}
-                    {{item}},
-                {% endfor %}
-            {% endif %}
+            <td width="60">            
+            </td>
+            <td>
+                <table border="0">
+                    {%for keyword in info_cols%}
+                    <tr><td width="500">
+                        {%if keyword == 'runtimes' %}
+                        <b>Runtime : </b>{{movie[keyword]}} mins
+                        {% elif keyword == 'year' %}
+                        <b>Year : </b>{{movie[keyword]}}
+                        {% elif movie[keyword]=='-' %}
+                        <b>{{name[keyword]}} : </b>No information  
+                        {% else %}
+                        <b> {{name[keyword]}} : </b>
+                            {%for item in movie[keyword] %}
+                                {{item}},
+                            {% endfor %}
+                        {% endif %}
+                        </td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </td>
             </tr>
+    
         
-    {% endfor %}
+    
         </table>
-        <div id="container" style="max-width: 700px; height: 400px; margin:left"></div>
+        <div id="container" style="max-width: 700px; height: 400px; margin: 0 auto"></div>
         <script type="text/javascript">
             Highcharts.chart('container', {
                 chart: {
@@ -95,4 +113,5 @@
                 ]
             });
                     </script>
+    </div>
 {% endblock %}
