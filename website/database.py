@@ -43,10 +43,10 @@ def get_instance_basic(table):
             result = cur.fetchone()
             entry.append(result[0])
             entry.append(result[1]+'-%d' % result[3])
-            entry.append(result[2])
+            temp=result[2]+""
+            temp=temp[0:15]+"cn"+temp[17:len(temp)]
+            entry.append(temp)
             templist.append(entry)
-            #print distr['preDistribution'][j]
-        # print templist
         return templist  
 
     elif table =='future_movies':
@@ -57,7 +57,9 @@ def get_instance_basic(table):
             entry=[]
             entry.append(i[0])
             entry.append(i[1]+'-%d' % i[3])
-            entry.append(i[2])
+            temp=i[2]+""
+            temp=temp[0:15]+"cn"+temp[17:len(temp)]
+            entry.append(temp)
             templist.append(entry)
         # print templist
         return templist 
@@ -78,6 +80,11 @@ def get_instance_details(table,id):
             result = cur.fetchone()
             if keyword=="year" or keyword=="runtimes":
                 movie[keyword]=result[0]
+            elif keyword =="cover_url":
+                temp=result[0]+""
+                temp=temp[0:15]+"cn"+temp[17:len(temp)]
+                print(temp)
+                movie[keyword]=temp
             else:
                 templist=[]
                 if result[0]=='':
@@ -127,6 +134,9 @@ def get_instance_details(table,id):
             conn.commit()
             if keyword=="year" or keyword=="runtimes":
                 movie[keyword]=result[0]
+            elif keyword =="cover_url":
+                temp=result[0]+""
+                movie[keyword]=temp[0:15]+"cn"+temp[17:len(temp)]
             else:
                 templist=[]
                 if result[0]=='':
