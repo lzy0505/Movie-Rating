@@ -13,9 +13,13 @@ info_cols=['title','year','runtimes','genres','color_info','director','cast_1','
 
 info_name={'title':'Title','genres':'Genres','color_info':'Color','director':'Director','cast_1':'1st Actor(Actress)','cast_2':'2nd Actor(Actress)','cast_3':'3rd Actor(Actress)','countries':'Country','languages':'Language',
 'writer':'Writer','editor':'Editor','cinematographer':'Cinematographer','art_direction':'Art Direction','costume_designer':'Costume Designer','original_music':'Original music by','sound_mix':'Sound Mix',
-'production_companies':'Production Company'}
+'production_companies':'Production Company','cheby':'Chebyshev','clark':'Clark','cbra':'Canberra','k-l':'Kullback-Leibler','cos':'Cosine','intsc':'Intersection'}
 
+index=['cheby','clark','cbra','k-l','cos','intsc']
 
+print("Loading data.....")
+database.init()
+print("Completed.")
 class CustomRenderer(BootstrapRenderer):
     def visit_Navbar(self, node):
         nav_tag = super(CustomRenderer, self).visit_Navbar(node)
@@ -36,11 +40,6 @@ register_renderer(app, 'custom', CustomRenderer)
 nav.init_app(app)
 
 Bootstrap(app)
-
-
-
-
-
 
 @app.route('/')
 def home():
@@ -65,7 +64,7 @@ def newdetails(movieid):
 @app.route('/olddetails/<movieid>')
 def olddetails(movieid):
     movie=database.get_instance_details('new_movies',movieid)
-    return render_template('old_details_layout.html',info_cols=info_cols,movie=movie,name=info_name)
+    return render_template('old_details_layout.html',info_cols=info_cols,movie=movie,name=info_name,indexs=index)
 
 
 if __name__ == '__main__':

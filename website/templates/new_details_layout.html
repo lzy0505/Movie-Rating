@@ -45,7 +45,14 @@
             </tr>
 
         </table>
-        <div id="container" style="max-width: 700px; height: 400px; margin: 0 auto"></div>
+        <table>
+            <tr><td><div id="container" style="width: 700px; height: 400px; margin: 0 auto"></div>
+            </td>
+            <td><b>The rating may be higher than {{movie['rank']}}% movies 
+                <br/>shown since Jan. 2011. (According to BFGS Alg)</b></td>
+        </tr>
+        </table>
+        
         <script type="text/javascript">
             Highcharts.chart('container', {
                 chart: {
@@ -68,11 +75,12 @@
                         dataLabels: {
                             enabled: true
                         },
-                        enableMouseTracking: false
+                        enableMouseTracking: true
                     }
                 },
                 series: [{
                     name: 'Predicted Distribution(LDSVR)',
+                    color: '#f7a35c',
                     data: [{{movie['f_number_of_votes_1']}}/100, 
                     {{movie['f_number_of_votes_2']}}/100, 
                     {{movie['f_number_of_votes_3']}}/100, 
@@ -86,6 +94,7 @@
                 },
                 {
                     name: 'Predicted Distribution(BFGS)',
+                    color: '#4D4DFF',
                     data: [{{movie['b_f_number_of_votes_1']}}/100, 
                     {{movie['b_f_number_of_votes_2']}}/100, 
                     {{movie['b_f_number_of_votes_3']}}/100, 

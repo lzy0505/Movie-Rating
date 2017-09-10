@@ -16,10 +16,11 @@
     <table border="0" style="max-width: 900px;  margin: 0 auto">
         <tr style="height:70px;">
         </tr>
-        <tr><td><p><img src="{{movie['cover_url']}}" width="320" height="430">
+        <tr><td width="50"> 
+            <td><p><img src="{{movie['cover_url']}}" width="320" height="430">
                         </p>
             </td>
-            <td width="60">            
+            <td width="100">            
             </td>
             <td>
                 <table border="0">
@@ -43,75 +44,115 @@
                 </table>
             </td>
             </tr>
-    
-        
-    
         </table>
-        <div id="container" style="max-width: 700px; height: 400px; margin: 0 auto"></div>
-        <script type="text/javascript">
-            Highcharts.chart('container', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Rating Distribution Comparison'
-                },
-                xAxis: {
-                    text: 'Rating Points',
-                    categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-                },
-                yAxis: {
-                    title: {
-                        text: 'Percentage(%)'
-                    }
-                },
-                plotOptions: {
-                    line: {
-                        dataLabels: {
-                            enabled: true
-                        },
-                        enableMouseTracking: false
-                    }
-                },
-                series: [{
-                    name: 'Predicted Distribution(LDSVR)',
-                    data: [{{movie['p_number_of_votes_1']}}/100, 
-                    {{movie['p_number_of_votes_2']}}/100, 
-                    {{movie['p_number_of_votes_3']}}/100, 
-                    {{movie['p_number_of_votes_4']}}/100, 
-                    {{movie['p_number_of_votes_5']}}/100, 
-                    {{movie['p_number_of_votes_6']}}/100, 
-                    {{movie['p_number_of_votes_7']}}/100, 
-                    {{movie['p_number_of_votes_8']}}/100, 
-                    {{movie['p_number_of_votes_9']}}/100, 
-                    {{movie['p_number_of_votes_10']}}/100]
-                },{
-                    name: 'Predicted Distribution(BFGS)',
-                    data: [{{movie['b_p_number_of_votes_1']}}/100, 
-                    {{movie['b_p_number_of_votes_2']}}/100, 
-                    {{movie['b_p_number_of_votes_3']}}/100, 
-                    {{movie['b_p_number_of_votes_4']}}/100, 
-                    {{movie['b_p_number_of_votes_5']}}/100, 
-                    {{movie['b_p_number_of_votes_6']}}/100, 
-                    {{movie['b_p_number_of_votes_7']}}/100, 
-                    {{movie['b_p_number_of_votes_8']}}/100, 
-                    {{movie['b_p_number_of_votes_9']}}/100, 
-                    {{movie['b_p_number_of_votes_10']}}/100]
-                },{
-                    name: 'Real Distribution',
-                    data: [{{movie['r_number_of_votes_1']}}/100, 
-                    {{movie['r_number_of_votes_2']}}/100, 
-                    {{movie['r_number_of_votes_3']}}/100, 
-                    {{movie['r_number_of_votes_4']}}/100, 
-                    {{movie['r_number_of_votes_5']}}/100, 
-                    {{movie['r_number_of_votes_6']}}/100, 
-                    {{movie['r_number_of_votes_7']}}/100, 
-                    {{movie['r_number_of_votes_8']}}/100, 
-                    {{movie['r_number_of_votes_9']}}/100, 
-                    {{movie['r_number_of_votes_10']}}/100]
-                }
-                ]
-            });
-                    </script>
+
+        <table style="max-width: 1000px; height: 400px; margin: 0 auto">
+            <tr>
+                <td>
+                <div id="container" style="width: 700px; height: 400px; margin: 0 auto"></div>
+                </td>
+                <td>
+                    <table class="table table-hover">
+                    <thead class="thead-default">
+                    <tr><th>Metrics</th>
+                        <th>    </th>
+                        <th>LSDVR</th>
+                        <th>    </th>
+                        <th>BFGS</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>{%for i in indexs%}
+                        <td>{{name[i]}}</td>
+                        <td></td>
+                        <td>{%if movie['better_'+i] >=0 %}
+                                <b>{{movie['l_'+i]}}</b>
+                                {% else %}
+                                {{movie['l_'+i]}}
+                            {% endif %}</td>
+                        <td></td>
+                        <td>{%if movie['better_'+i] <=0 %}
+                                <b>{{movie['b_'+i]}}</b>
+                                {% else %}
+                                {{movie['b_'+i]}}
+                            {% endif %}</td>
+                        </tr>
+                        <tr>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </div>
+
+    <script type="text/javascript">
+        Highcharts.chart('container', {
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: 'Rating Distribution Comparison'
+            },
+            xAxis: {
+                text: 'Rating Points',
+                categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+            },
+            yAxis: {
+                title: {
+                    text: 'Percentage(%)'
+                }
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    },
+                    enableMouseTracking: true
+                }
+            },
+            series: [{
+                name: 'Predicted Distribution(LDSVR)',
+                color: '#f7a35c',
+                data: [{{movie['p_number_of_votes_1']}}/100, 
+                {{movie['p_number_of_votes_2']}}/100, 
+                {{movie['p_number_of_votes_3']}}/100, 
+                {{movie['p_number_of_votes_4']}}/100, 
+                {{movie['p_number_of_votes_5']}}/100, 
+                {{movie['p_number_of_votes_6']}}/100, 
+                {{movie['p_number_of_votes_7']}}/100, 
+                {{movie['p_number_of_votes_8']}}/100, 
+                {{movie['p_number_of_votes_9']}}/100, 
+                {{movie['p_number_of_votes_10']}}/100]
+            },{
+                name: 'Predicted Distribution(BFGS)',
+                color: '#4D4DFF',
+                data: [{{movie['b_p_number_of_votes_1']}}/100, 
+                {{movie['b_p_number_of_votes_2']}}/100, 
+                {{movie['b_p_number_of_votes_3']}}/100, 
+                {{movie['b_p_number_of_votes_4']}}/100, 
+                {{movie['b_p_number_of_votes_5']}}/100, 
+                {{movie['b_p_number_of_votes_6']}}/100, 
+                {{movie['b_p_number_of_votes_7']}}/100, 
+                {{movie['b_p_number_of_votes_8']}}/100, 
+                {{movie['b_p_number_of_votes_9']}}/100, 
+                {{movie['b_p_number_of_votes_10']}}/100]
+            },{
+                name: 'Real Distribution',
+                color:'#000000',
+                data: [{{movie['r_number_of_votes_1']}}/100, 
+                {{movie['r_number_of_votes_2']}}/100, 
+                {{movie['r_number_of_votes_3']}}/100, 
+                {{movie['r_number_of_votes_4']}}/100, 
+                {{movie['r_number_of_votes_5']}}/100, 
+                {{movie['r_number_of_votes_6']}}/100, 
+                {{movie['r_number_of_votes_7']}}/100, 
+                {{movie['r_number_of_votes_8']}}/100, 
+                {{movie['r_number_of_votes_9']}}/100, 
+                {{movie['r_number_of_votes_10']}}/100]
+            }
+            ]
+        });
+    </script>
 {% endblock %}
