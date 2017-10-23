@@ -4,24 +4,26 @@ class Movie(object):
         self.id = ''
         self.title = ''
         self.cover_url = ''
+        self.giant_cover_url = ''
         self.genres = ''
         self.color_info = ''
         self.director = ''
-        self.cast_1 = ''
-        self.cast_2 = ''
-        self.cast_3 = ''
+        self.cast_1st = ''
+        self.cast_2nd = ''
+        self.cast_3rd = ''
         self.countries = ''
         self.languages = ''
         self.writer = ''
         self.editor = ''
         self.cinematographer = ''
-        self.art_direction = ''
+        self.art_director = ''
         self.costume_designer = ''
         self.original_music = ''
         self.sound_mix = ''
         self.production_companies = ''
         self.year = 1900
         self.runtimes = 60
+        self.budget = 0
 
     @property
     def id(self):
@@ -36,6 +38,10 @@ class Movie(object):
         return self._cover_url
 
     @property
+    def giant_cover_url(self):
+        return self._giant_cover_url
+
+    @property
     def genres(self):
         return self._genres
 
@@ -48,16 +54,16 @@ class Movie(object):
         return self._director
 
     @property
-    def cast_1(self):
-        return self._cast_1
+    def cast_1st(self):
+        return self._cast_1st
 
     @property
-    def cast_2(self):
-        return self._cast_2
+    def cast_2nd(self):
+        return self._cast_2nd
 
     @property
-    def cast_3(self):
-        return self._cast_3
+    def cast_3rd(self):
+        return self._cast_3rd
 
     @property
     def countries(self):
@@ -80,8 +86,8 @@ class Movie(object):
         return self._cinematographer
     
     @property
-    def art_direction(self):
-        return self._art_direction
+    def art_director(self):
+        return self._art_director
 
     @property
     def costume_designer(self):
@@ -108,11 +114,13 @@ class Movie(object):
         return self._runtimes
 
     @property
+    def budget(self):
+        return self._budget
+
+    @property
     def number_of_votes(self):
         return self._number_of_votes
-
-
-    
+ 
     @id.setter
     def id(self, value):
         self._id = value
@@ -124,6 +132,10 @@ class Movie(object):
     @cover_url.setter
     def cover_url(self, value):
         self._cover_url = value
+
+    @giant_cover_url.setter
+    def giant_cover_url(self, value):
+        self._giant_cover_url = value
 
     @genres.setter
     def genres(self, value):
@@ -137,17 +149,17 @@ class Movie(object):
     def director(self, value):
         self._director = value
 
-    @cast_1.setter
-    def cast_1(self, value):
-        self._cast_1 = value
+    @cast_1st.setter
+    def cast_1st(self, value):
+        self._cast_1st = value
 
-    @cast_2.setter
-    def cast_2(self, value):
-        self._cast_2 = value
+    @cast_2nd.setter
+    def cast_2nd(self, value):
+        self._cast_2nd = value
 
-    @cast_3.setter
-    def cast_3(self, value):
-        self._cast_3 = value
+    @cast_3rd.setter
+    def cast_3rd(self, value):
+        self._cast_3rd = value
 
     @countries.setter
     def countries(self, value):
@@ -169,9 +181,9 @@ class Movie(object):
     def cinematographer(self, value):
         self._cinematographer = value
 
-    @art_direction.setter
-    def art_direction(self, value):
-        self._art_direction = value
+    @art_director.setter
+    def art_director(self, value):
+        self._art_director = value
 
     @costume_designer.setter
     def costume_designer(self, value):
@@ -196,6 +208,10 @@ class Movie(object):
     @runtimes.setter
     def runtimes(self, value):
         self._runtimes = value
+
+    @budget.setter
+    def budget(self, value):
+        self._budget = value
 
     @number_of_votes.setter
     def number_of_votes(self, value):
