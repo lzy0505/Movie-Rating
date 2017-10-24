@@ -23,7 +23,8 @@ class Movie(object):
         self.production_companies = ''
         self.year = 1900
         self.runtimes = 60
-        self.budget = 0
+        self.number_of_votes = []
+        # self.budget = 0
 
     @property
     def id(self):
@@ -113,9 +114,9 @@ class Movie(object):
     def runtimes(self):
         return self._runtimes
 
-    @property
-    def budget(self):
-        return self._budget
+    # @property
+    # def budget(self):
+    #     return self._budget
 
     @property
     def number_of_votes(self):
@@ -209,9 +210,9 @@ class Movie(object):
     def runtimes(self, value):
         self._runtimes = value
 
-    @budget.setter
-    def budget(self, value):
-        self._budget = value
+    # @budget.setter
+    # def budget(self, value):
+    #     self._budget = value
 
     @number_of_votes.setter
     def number_of_votes(self, value):

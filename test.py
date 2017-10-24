@@ -1,21 +1,7 @@
-import requests
-
-
-
+import sqlite3
+from movie import Movie
 from imdb import imdb,IMDbError,IMDbDataAccessError
-
-from bs4 import BeautifulSoup
-
-from Queue import Queue
-
-from threading import Thread
-
-#from defination import Movie
-
-
-
-thread_number = 5
-
+import imdb.parser.http.movieParser
 
 
 ## Below are constants associated with IMDB data
@@ -24,192 +10,190 @@ imdb_new_movie_url='http://www.imdb.com/movies-coming-soon/'
 
 imdb_access = imdb.IMDb()
 
-imdb_access.reraiseException=True
-
-
-
-# the multi-processor queue of movie IDs
-
-movieID = Queue(maxsize = 500)
-
-
-
-# the time range where we search for movies
-
-begin_year = 2017
-
-end_year = 2017
-
-
-
-begin_month = 7
-
-end_month = 7
-
-
-
-
-
-
-
-def get_ID():
-
-    for year, month in zip(range(begin_year, end_year+1), range(begin_month, end_month+1)):
-
-        url = imdb_new_movie_url + ( '%d-%02d' % (year, month) )
-
-
-
-        print " - GET_ID - movie url: ", url
-
-
-
-        soup = BeautifulSoup(requests.get(url).content, "lxml")
-
-
-
-        list_item = soup.findAll(True, {'class': "list_item"})
-
-        for item in list_item:
-
-            h4 = item.findAll('h4')
-
-            for h in h4:
-
-                link = h.find('a').get('href')
-
-                link = link[9: link.index('?')-1]
-
-                movieID.put(link)
-
-                print " - GET_ID - link: ", link
-
 
 
 def get_Info():
-
-   # while True:
-
         try:
 
-            m_id = '1322393'
+            # m_id = '4649466'
 
-            # #movieID.get()
+            # movie = imdb_access.get_movie(m_id)
+            # # for i in movie:
+            # imdb_access.update(movie, info=('business'))
+            # print movie.get('Budget')
 
-            movie = imdb_access.get_movie(m_id)
+            mvIN = imdb_access.get_movie('4649466')
+            # create new Movie object
+            mvOJ = Movie()
+            # ID string
+            mvOJ.id = '4649466'
+            # title string
+            mvOJ.title = mvIN.get('title')
+            # poster url string
+            mvOJ.cover_url = mvIN.get('cover url')
+            # Bigger poster url string
+            mvOJ.giant_cover_url = mvIN.get('full-size cover url')
+                       # genres string list
+            if mvIN.has_key('genres'):
+                sIN = ""
+                for i in mvIN.get('genres'):
+                    sIN += (i + '$')
+                mvOJ.genres = sIN[0:len(sIN)-1]
+            # color string list
+            if mvIN.has_key('color info'):
+                sIN = ""
+                for i in mvIN.get('color info'):
+                    sIN += (i + '$')
+                mvOJ.color_info = sIN[0:len(sIN)-1]
+            # director string list
+            if mvIN.has_key('director'):
+                sIN = ""
+                for i in mvIN.get('director'):
+                    sIN += i['name']+'$'
+                mvOJ.director = sIN[0:len(sIN)-1] 
+            # 1st Actor
+            mvOJ.cast_1st = mvIN.get('cast')[0]['name']
+            print type(mvOJ.cast_1st)
+            if len(mvIN.get('cast')) >= 2:
+                # 2nd Actor
+                mvOJ.cast_2nd = mvIN.get('cast')[1]['name']
+            if len(mvIN.get('cast')) >= 3:
+                # 3rd Actor
+                mvOJ.cast_3rd = mvIN.get('cast')[2]['name']
+            # country string list
+            if mvIN.has_key('countries'):
+                sIN = ""
+                for i in mvIN.get('countries'):
+                    sIN += (i + '$')
+                mvOJ.countries = sIN[0:len(sIN)-1]
+            # language string list
+            if mvIN.has_key('languages'):
+                sIN = ""
+                for i in mvIN.get('languages'):
+                    sIN += (i + '$')
+                mvOJ.languages = sIN[0:len(sIN)-1]
+            # writer string list
+            if mvIN.has_key('writer'):
+                sIN = ""
+                for i in mvIN.get('writer'):
+                    sIN += i['name']+'$'
+                mvOJ.writer = sIN[0:len(sIN)-1]
+            # editor string list
+            if mvIN.has_key('editor'):
+                sIN = ""
+                for i in mvIN.get('editor'):
+                    sIN += i['name']+'$'
+                mvOJ.editor = sIN[0:len(sIN)-1]
+            # cinematographer string list
+            if mvIN.has_key('cinematographer'):
+                sIN = ""
+                for i in mvIN.get('cinematographer'):
+                    sIN += i['name']+'$'
+                mvOJ.cinematographer = sIN[0:len(sIN)-1]
+            # art direction string list
+            if mvIN.has_key('art direction'):
+                sIN = ""
+                for i in mvIN.get('art direction'):
+                    sIN += i['name']+'$'
+                mvOJ.art_director = sIN[0:len(sIN)-1]
+            # costume designer string list
+            if mvIN.has_key('costume designer'):
+                sIN = ""
+                for i in mvIN.get('costume designer'):
+                    sIN += i['name']+'$'
+                mvOJ.costume_designer = sIN[0:len(sIN)-1]
+            # music By string list
+            if mvIN.has_key('original music'):
+                sIN = ""
+                for i in mvIN.get('original music'):
+                    sIN += i['name']+'$'
+                mvOJ.original_music = sIN[0:len(sIN)-1]
+            # sound string list
+            if mvIN.has_key('sound mix'):
+                sIN = ""
+                for i in mvIN.get('sound mix'):
+                    sIN += (i + '$')
+                mvOJ.sound_mix = sIN[0:len(sIN)-1]
+            # production company string list
+            if mvIN.has_key('production companies'):
+                sIN = ""
+                for i in mvIN.get('production companies'):
+                    sIN += i['name']+'$'
+                mvOJ.production_companies = sIN[0:len(sIN)-1]
+            # year int
+            if mvIN.has_key('year'):
+                mvOJ.year = mvIN.get('year')
+            # running time int
+            if mvIN.has_key('runtimes'):
+                if str(mvIN.get('runtimes')[0]).find(':') != -1:
+                    mvOJ.runtimes = str(mvIN.get('runtimes')[0]).split(':')[1]
+                else:
+                    mvOJ.runtimes = mvIN.get('runtimes')[0]
+            imdb_access.update(mvIN, info=('vote details'))
+            mvOJ.number_of_votes = mvIN.get('number of votes')
+
+            ssum = 0.0
+            rating = []
+            type(mvOJ.number_of_votes)
+            for n in mvOJ.number_of_votes:
+                ssum+=mvOJ.number_of_votes[n]
+                rating.append(mvOJ.number_of_votes[n])
+            for i in xrange(0,len(rating)):
+                rating[i]=rating[i]/ssum
+            print rating
+
+            # for i in [mvOJ.id,
+            #         mvOJ.title,
+            #         mvOJ.cover_url,
+            #         mvOJ.giant_cover_url,
+            #         mvOJ.genres,
+            #         mvOJ.color_info,
+            #         mvOJ.director,
+            #         mvOJ.cast_1st,
+            #         mvOJ.cast_2nd,
+            #         mvOJ.cast_3rd,
+            #         mvOJ.countries,
+            #         mvOJ.languages,
+            #         mvOJ.writer,
+            #         mvOJ.editor,
+            #         mvOJ.cinematographer,
+            #         mvOJ.art_director,
+            #         mvOJ.costume_designer,
+            #         mvOJ.original_music,
+            #         mvOJ.sound_mix,
+            #         mvOJ.production_companies,
+            #         mvOJ.year,
+            #         mvOJ.runtimes]:
+            #     print i
 
 
-            # #ID string
-
-            # print  m_id
-
-            # #Title string
-
-            # print  movie.get('title')
-
-            # #Poster url string
-
-            # print  movie.get('cover url')
-
-
-
-            # #Genres string list
-
-            # print movie.get('genres')
-
-
-            # #Color string list
-
-            # print movie.get('color info')
-
-            # #Director string list
-
-            # print movie.get('director')
-           
-            # #1st Actor
-
-            print len(movie.get('cast'))
-           
-
-            # #2nd Actor
-
-            # print movie.get('cast')[1]
-
-            # #3rd Actor
-
-            # print movie.get('cast')[2]
-
-            # #Country string list
-
-            # print  movie.get('countries')
-
-            # #Language string list
-
-            # print  movie.get('languages')
-
-            # #Writer string list
-
-            # print  movie.get('writer')
-
-            # #Editor string list
-
-            # print  movie.get('editor')
-
-            # #Cinematographer string list
-
-            # print  movie.get('cinematographer')
-
-            # #Art direction string list
-
-            # print  movie.get('art direction')
-
-            # #Costume designer string list
-
-            # print  movie.get('costume designer')
-
-            # #Music By string list
-
-            # print  movie.get('original music')
-
-            # #Sound string list
-
-            # print  movie.get('sound mix')
-
-            #Production company string list
-
-            # print  movie.get('production companies')
-           
-            # temp=''
-            # counter=0
-            # temp=movie.get('production companies')
-            # for i in movie.get('production companies'):
-            #     print i.companyID
-                #temp+=i.getID()+'&'+i['name']+'$'
-                #counter+=1
-                #if counter==3:
-                #    break
-            #print temp[0:len(temp)-1]
+            # conn = sqlite3.connect("movie.db")
+            # cur = conn.cursor()
+            # cur.execute(
+            #     "INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            #     (mvOJ.id,
+            #         mvOJ.title,
+            #         mvOJ.cover_url,
+            #         mvOJ.giant_cover_url,
+            #         mvOJ.genres,
+            #         mvOJ.color_info,
+            #         mvOJ.director,
+            #         mvOJ.cast_1st,
+            #         mvOJ.cast_2nd,
+            #         mvOJ.cast_3rd,
+            #         mvOJ.countries,
+            #         mvOJ.languages,
+            #         mvOJ.writer,
+            #         mvOJ.editor,
+            #         mvOJ.cinematographer,
+            #         mvOJ.art_director,
+            #         mvOJ.costume_designer,
+            #         mvOJ.original_music,
+            #         mvOJ.sound_mix,
+            #         mvOJ.production_companies,
+            #         mvOJ.year,
+            #         mvOJ.runtimes))
             
-            
-
-            # #Year string
-
-            # print  movie.get('year')
-
-            # #Running time string list
-
-            # print  movie.get('runtimes')
-
-            #print movie.get('full-size cover url')
-
-            # #Rating 
-
-            # imdb_access.update(movie, info=('vote details'))
-
-            # print  movie.get('number of votes')
-            
-          # movieID.task_done()
-
         except imdb.IMDbError , e:
 
             #movieID.put(m_id)
@@ -217,31 +201,42 @@ def get_Info():
             print ' - GET_INFO - An {} exception occured'.format(e)
 
 
-
-
-
-def thread_Init():
-
-    for i in range(thread_number):
-
-        t=Thread(target=get_Info)
-
-        t.deamon = True
-
-        t.start()
-
-
-
-
+def db():
+    conn = sqlite3.connect("movie.db")
+    cur = conn.cursor()
+    cur.execute("INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+    ("1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "8",
+    "7",
+    "9",
+    "0",
+    "1",
+    "2"
+    ))
 
 if __name__ == '__main__':
 
    # thread_Init()
 
-   # get_ID()
+#    get_ID()
 
    # movieID.join()
-
+    # db()
     get_Info()
 
     print 'Done crawling data from IMDB!'

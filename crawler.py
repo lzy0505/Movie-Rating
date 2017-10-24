@@ -4,7 +4,7 @@ import sqlite3
 
 from Queue import Queue
 from bs4 import BeautifulSoup
-from imdb import imdb, IMDbDataAccessError
+from imdb import imdb
 from movie import Movie
 from threading import Thread
 
@@ -23,9 +23,11 @@ mvINQ = Queue(maxsize=100)
 begin_year = 2016
 end_year = 2016
 begin_month = 1
-end_month = 6
+end_month = 3
 # the mode indicate that whether get rating of movies
 mode = "old"
+
+stage = 0
 
 
 def get_IDs():
@@ -33,6 +35,7 @@ def get_IDs():
     Get the movie IDs by crawling the IMDB website. We will later use these
     IDs to get more information about the movie using IMDbPy.
     '''
+    global stage
     for year in range(begin_year, end_year+1):
         for month in range(1, 12+1):
             if(year == begin_year and month < begin_month):
@@ -53,12 +56,15 @@ def get_IDs():
                         # put id into queue
                         mvIDQ.put(m_id)
                         print "-CRAWLER- Got movie id: %s" % m_id
+    stage = 1
+    print '-CRAWLER- Finished on getting movie id.'
 
 
 def get_info():
+    global stage
     time.sleep(5)
     print "-CRAWLER- Start to get movie feature..."
-    while not mvIDQ.empty():
+    while (not mvIDQ.empty()) or stage == 0:
         try:
             mvID = mvIDQ.get()
             # get info from imdmpy with movie id
@@ -75,100 +81,103 @@ def get_info():
             # Bigger poster url string
             mvOJ.giant_cover_url = mvIN.get('full-size cover url')
             # genres string list
-            if 'genres' in mvIN:
+            if mvIN.has_key('genres'):
                 sIN = ""
                 for i in mvIN.get('genres'):
                     sIN += (i + '$')
                 mvOJ.genres = sIN[0:len(sIN)-1]
             # color string list
-            if 'color info' in mvIN:
+            if mvIN.has_key('color info'):
                 sIN = ""
                 for i in mvIN.get('color info'):
                     sIN += (i + '$')
                 mvOJ.color_info = sIN[0:len(sIN)-1]
             # director string list
-            if 'director' in mvIN:
+            if mvIN.has_key('director'):
                 sIN = ""
                 for i in mvIN.get('director'):
                     sIN += i['name']+'$'
                 mvOJ.director = sIN[0:len(sIN)-1] 
             # 1st Actor
-            mvOJ.cast_1st = mvIN.get('cast')[0]
+            mvOJ.cast_1st = mvIN.get('cast')[0]['name']
             if len(mvIN.get('cast')) >= 2:
                 # 2nd Actor
-                mvOJ.cast_2nd = mvIN.get('cast')[1]
+                mvOJ.cast_2nd = mvIN.get('cast')[1]['name']
             if len(mvIN.get('cast')) >= 3:
                 # 3rd Actor
-                mvOJ.cast_3rd = mvIN.get('cast')[2]
+                mvOJ.cast_3rd = mvIN.get('cast')[2]['name']
             # country string list
-            if 'countries' in mvIN:
+            if mvIN.has_key('countries'):
                 sIN = ""
                 for i in mvIN.get('countries'):
                     sIN += (i + '$')
                 mvOJ.countries = sIN[0:len(sIN)-1]
             # language string list
-            if 'languages' in mvIN:
+            if mvIN.has_key('languages'):
                 sIN = ""
                 for i in mvIN.get('languages'):
                     sIN += (i + '$')
                 mvOJ.languages = sIN[0:len(sIN)-1]
             # writer string list
-            if 'writer' in mvIN:
+            if mvIN.has_key('writer'):
                 sIN = ""
                 for i in mvIN.get('writer'):
                     sIN += i['name']+'$'
                 mvOJ.writer = sIN[0:len(sIN)-1]
             # editor string list
-            if 'editor' in mvIN:
+            if mvIN.has_key('editor'):
                 sIN = ""
                 for i in mvIN.get('editor'):
                     sIN += i['name']+'$'
                 mvOJ.editor = sIN[0:len(sIN)-1]
             # cinematographer string list
-            if 'cinematographer' in mvIN:
+            if mvIN.has_key('cinematographer'):
                 sIN = ""
                 for i in mvIN.get('cinematographer'):
                     sIN += i['name']+'$'
                 mvOJ.cinematographer = sIN[0:len(sIN)-1]
             # art direction string list
-            if 'art direction' in mvIN:
+            if mvIN.has_key('art direction'):
                 sIN = ""
                 for i in mvIN.get('art direction'):
                     sIN += i['name']+'$'
                 mvOJ.art_director = sIN[0:len(sIN)-1]
             # costume designer string list
-            if 'costume designer' in mvIN:
+            if mvIN.has_key('costume designer'):
                 sIN = ""
                 for i in mvIN.get('costume designer'):
                     sIN += i['name']+'$'
                 mvOJ.costume_designer = sIN[0:len(sIN)-1]
             # music By string list
-            if 'original music' in mvIN:
+            if mvIN.has_key('original music'):
                 sIN = ""
                 for i in mvIN.get('original music'):
                     sIN += i['name']+'$'
                 mvOJ.original_music = sIN[0:len(sIN)-1]
             # sound string list
-            if 'sound mix' in mvIN:
+            if mvIN.has_key('sound mix'):
                 sIN = ""
                 for i in mvIN.get('sound mix'):
                     sIN += (i + '$')
                 mvOJ.sound_mix = sIN[0:len(sIN)-1]
             # production company string list
-            if 'production companies' in mvIN:
+            if mvIN.has_key('production companies'):
                 sIN = ""
                 for i in mvIN.get('production companies'):
                     sIN += i['name']+'$'
                 mvOJ.production_companies = sIN[0:len(sIN)-1]
             # year int
-            if 'year' in mvIN:
+            if mvIN.has_key('year'):
                 mvOJ.year = mvIN.get('year')
             # running time int
-            if 'runtimes' in mvIN:
+            if mvIN.has_key('runtimes'):
                 if str(mvIN.get('runtimes')[0]).find(':') != -1:
                     mvOJ.runtimes = str(mvIN.get('runtimes')[0]).split(':')[1]
                 else:
                     mvOJ.runtimes = mvIN.get('runtimes')[0]
+            # budget int      
+            # if 'budget' in mvIN:
+            #     mvOJ.budget = mvIN.get('budget')
             # get rating for old movies
             if mode == "old":
                 imdb_access.update(mvIN, info=('vote details'))
@@ -178,22 +187,26 @@ def get_info():
             mvIDQ.task_done()
             print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
         # TODO cannot handle exception
-        except 'IOError', e:
+        except Exception, e:
             print '-CRAWLER- An {} exception occured'.format(e), mvID
             mvINQ.put(mvID)
         time.sleep(1)
+    stage = 2
+    print '-CRAWLER- Finished on getting movie features.'
         
 
 def store_movies():
-    time.sleep(30)
+    global stage
+    time.sleep(20)
+    print "-CRAWLER- Start to store movie feature..."
     conn = sqlite3.connect("movie.db")
     cur = conn.cursor()
-    while not mvINQ.empty():
-        time.sleep(5)
+    while (not mvINQ.empty()) or stage < 2:
+        time.sleep(2)
         try:
             mvIN = mvINQ.get()
             cur.execute(
-                "INSERT INTO feature values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                "INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (mvIN.id,
                     mvIN.title,
                     mvIN.cover_url,
@@ -215,18 +228,18 @@ def store_movies():
                     mvIN.sound_mix,
                     mvIN.production_companies,
                     mvIN.year,
-                    mvIN.runtimes,
-                    mvIN.budget))
+                    mvIN.runtimes))
 
             if mode == 'old':
-                sum = 0
-                for n in mvIN.number_of_votes:
-                    sum += n
+                ssum = 0.0
                 rating = []
                 for n in mvIN.number_of_votes:
-                    rating.append(n/sum)
+                    ssum += mvIN.number_of_votes[n]
+                    rating.append(mvIN.number_of_votes[n])
+                for i in xrange(0, len(rating)):
+                    rating[i] = rating[i]/ssum
                 cur.execute(
-                    "INSERT INTO rating values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (mvIN.id, 
                         "old",
                         rating[0],
@@ -251,7 +264,7 @@ def store_movies():
                         "NULL"))
             else:
                 cur.execute(
-                    "INSERT INTO rating values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (mvIN.id, 
                         "new",
                         "NULL",
@@ -278,7 +291,7 @@ def store_movies():
             print '-CRAWLER- Store moive(ID: %s) into database successfully.' % mvIN.id
             mvINQ.task_done()
         except Exception, e:
-            print '-CRAWLER- Store moive(ID: %s) An exception occured{}'.format(e) % mvIN.id
+            print '-CRAWLER- An {} exception occured'.format(e)
     conn.close()
 
 

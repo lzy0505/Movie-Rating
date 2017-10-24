@@ -36,8 +36,8 @@ def create_table():
     + "sound_mix TEXT DEFAULT NULL,\n"
     + "production_companies TEXT NOT NULL,\n"
     + "year INTEGER NOT NULL,\n"
-    + "runtimes INTEGER NOT NULL,\n"
-    + "budget INTEGER NOT NULL"
+    + "runtimes INTEGER NOT NULL"
+    # + "budget INTEGER NOT NULL"
     + ")")
     print "-INIT- Table feature has been created."
 
