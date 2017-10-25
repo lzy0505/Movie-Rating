@@ -27,7 +27,7 @@ def create_table():
     + "cast_3rd TEXT DEFAULT NULL,\n"
     + "countries TEXT NOT NULL,\n"
     + "languages TEXT NOT NULL,\n"
-    + "writor TEXT DEFAULT NULL,\n"
+    + "writer TEXT DEFAULT NULL,\n"
     + "editor TEXT DEFAULT NULL,\n"
     + "cinematographer TEXT DEFAULT NULL,\n"
     + "art_director TEXT DEFAULT NULL,\n"

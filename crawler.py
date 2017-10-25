@@ -169,12 +169,19 @@ def get_info():
             # year int
             if mvIN.has_key('year'):
                 mvOJ.year = mvIN.get('year')
+            else:
+                mvOJ.year = 0
             # running time int
             if mvIN.has_key('runtimes'):
-                if str(mvIN.get('runtimes')[0]).find(':') != -1:
-                    mvOJ.runtimes = str(mvIN.get('runtimes')[0]).split(':')[1]
-                else:
-                    mvOJ.runtimes = mvIN.get('runtimes')[0]
+                try:
+                    if str(mvIN.get('runtimes')[0]).find(':') != -1:
+                            mvOJ.runtimes = int(str(mvIN.get('runtimes')[0]).split(':')[1])
+                    else:
+                        mvOJ.runtimes = int(mvIN.get('runtimes')[0])
+                except Exception:
+                    mvOJ.runtimes = 0
+            else:
+                mvOJ.runtimes = 0
             # budget int      
             # if 'budget' in mvIN:
             #     mvOJ.budget = mvIN.get('budget')
@@ -185,7 +192,7 @@ def get_info():
                 
             mvINQ.put(mvOJ)
             mvIDQ.task_done()
-            print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
+            # print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
         # TODO cannot handle exception
         except Exception, e:
             print '-CRAWLER- An {} exception occured'.format(e), mvID
@@ -288,11 +295,13 @@ def store_movies():
                         "NULL",
                         "NULL"))
             conn.commit()
-            print '-CRAWLER- Store moive(ID: %s) into database successfully.' % mvIN.id
+            # print '-CRAWLER- Store moive(ID: %s) into database successfully.' % mvIN.id
             mvINQ.task_done()
         except Exception, e:
             print '-CRAWLER- An {} exception occured'.format(e)
     conn.close()
+    print "-CRAWLER- Finished on store movie feature..."
+    print 'Done crawling data from IMDB!'
 
 
 def thread_init():
@@ -308,6 +317,5 @@ def thread_init():
 if __name__ == '__main__':
     thread_init()
     get_IDs()
-    mvIDQ.join()
-    mvINQ.join()
-    print 'Done crawling data from IMDB!'
+
+    
