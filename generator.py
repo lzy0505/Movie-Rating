@@ -1,4 +1,5 @@
 import sqlite3
+import scipy.io as sio
 import numpy as np
 
 
@@ -7,16 +8,19 @@ mode = "old"
 cur = None
 conn = None
 
-lFtrCols = ["year", "runtimes", "genres", 'color_info', 'director', 'cast_1st', 'cast_2nd', 'cast_3rd', 'countries', 'languages',
-    'writer', 'editor', 'cinematographer', 'art_director', 'costume_designer', 'original_music', 'sound_mix', 'production_companies']
-lRtgCols = []
+lFtrCols = ["year", "runtimes", "genres", 'color_info', 'director', 'cast_1st',
+               'cast_2nd', 'cast_3rd', 'countries', 'languages', 'writer',
+               'editor', 'cinematographer', 'art_director', 'costume_designer',
+               'original_music', 'sound_mix', 'production_companies']
+lRtgCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
+               "real_7", "real_8", "real_9", "real_10"]
 
-#threshold = [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 7]
-threshold=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+# threshold = [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 7]
+threshold = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 # temporary variables
 lValue = []
-idxValue = []
+idxCtlg = []
 
 mxYear = 0
 mnYear = 3000
@@ -44,7 +48,7 @@ def scan_column():
     try:
         index = 0
         for ctlg in lFtrCols:
-            idxValue.append(index)
+            idxCtlg.append(index)
             command = "SELECT %s FROM feature" % ctlg
             print "executing %s..." % command
             cur.execute(command)
@@ -87,7 +91,8 @@ def scan_column():
                             tmpDictValue[i] = 1
                         else:
                             tmpDictValue[i] += 1
-                # check whether numbers of value is greater than the threshold of this catalog
+                # check whether numbers of value is greater 
+                # than the threshold of this catalog
                 for key in tmpDictValue:
                     if tmpDictValue[key] > threshold[lFtrCols.index(ctlg)]:
                         # add the value in  column list
@@ -96,88 +101,90 @@ def scan_column():
                 if nullflag:
                     lValue.append('Null_%s' % ctlg)
                     index += 1
-                lValue.append('others_%s' % ctlg)
+                lValue.append('Others_%s' % ctlg)
                 index += 1
             conn.commit()
             print '-SCAN- Catalog %s scan successfully.' % ctlg
-        idxValue.append(index)
+        idxCtlg.append(index)
     except Exception as e:
             print '-SCAN- An {} exception occured'.format(e)
 
 
-# def generate_matrices():
-#     global cur,conn
-#     global year_max,year_min,runtime_max,runtime_min
-#     global info_output,rating_output
-#     #printvars()
-#     try:
-#         cur.execute('SELECT id FROM %s' % mysql_table)
-#         id_result=cur.fetchall()
-#         conn.commit()
-#         info_output=np.zeros((len(id_result), len(values)), dtype=np.double)
-#         rating_output=np.zeros((len(id_result), 10), dtype=np.double)
-#         row_index=0
-#         for movie_id in id_result:
-#             movie_rating=[]
-#             rating_sum=0.0
-#             for keyword in info_cols:
-#                 cur.execute("SELECT %s FROM %s WHERE id= '%s'" % (keyword,mysql_table,str(movie_id[0])))
-#                 result = cur.fetchall()
-#                 if keyword=="year":
-#                     var=(float(result[0][0])-year_min)/(year_max-year_min)
-#                     info_output[row_index,0]=var
-#                 elif keyword=="runtimes":
-#                     var=(float(result[0][0])-runtime_min)/(runtime_max-runtime_min)
-#                     info_output[row_index,1]=var
-#                 else:
-#                     flag=0.0
-#                     for i in xrange(values_index[info_cols.index(keyword)],values_index[info_cols.index(keyword)+1]-1):
-#                         if result[0][0] == '': 
-#                             info_output[row_index,i]=0.0
-#                             info_output[row_index,values_index[info_cols.index(keyword)+1]-2]=1.0
-#                         else:
-#                             r=0.0
-#                             for value in result[0][0].split('$'): 
-#                                 if values[i] == value:
-#                                     r=1.0
-#                                 else:
-#                                     flag=1.0
-#                             info_output[row_index,i]=r
-#                     info_output[row_index,values_index[info_cols.index(keyword)+1]-1]=flag  
-#                 conn.commit()
-#             if mysql_table=='new_movies':
-#                 for keyword in rating_cols:
-#                     cur.execute("SELECT %s FROM new_movies WHERE id= '%s'" % (keyword,str(movie_id[0])))
-#                     result = cur.fetchall()
-#                     rating_sum=rating_sum+float(result[0][0])
-#                     movie_rating.append(float(result[0][0]))
-#                     conn.commit()
-#                 for i in xrange(0,len(movie_rating)):
-#                     rating_output[row_index,i]=movie_rating[i]/rating_sum
-                
-#             print ' - SCAN_ROW - ID: %s Scan successfully.' % movie_id[0]
-#             row_index+=1
-#     except Exception as e:
-#             print ' - GENERATE_MATRICES - An {} exception occured'.format(e)
+def generate_matrices():
+    global cur, conn
+    global mxYear, mnYear, mxRntms, mnRntms
+    global info_output, rating_output, mode
+    # printvars()
+    try:
+        cur.execute('SELECT id FROM feature')
+        rstID = cur.fetchall()
+        conn.commit()
+        info_output = np.zeros((len(rstID), len(lValue)), dtype=np.double)
+        rating_output = np.zeros((len(rstID), 10), dtype=np.double)
+        for mvID in rstID:
+            idxRow = rstID.index(mvID)
+            for ctlg in lFtrCols:
+                cur.execute("SELECT %s FROM feature WHERE id= '%s'" % (ctlg, str(mvID[0])))
+                rst = cur.fetchall()
+                for i in xrange(idxCtlg[lFtrCols.index(ctlg)], idxCtlg[lFtrCols.index(ctlg)+1]):
+                    if ctlg == "year" or ctlg == "runtimes":
+                        if int(rst[0][0]) == 0:
+                            info_output[idxRow, i] = 0.0
+                            info_output[idxRow, idxCtlg[lFtrCols.index(ctlg)+1] - 1] = 1.0
+                        else:
+                            if ((idxCtlg[lFtrCols.index(ctlg)+1] - 1) == i) and (idxCtlg[lFtrCols.index(ctlg)+1] - 1 - idxCtlg[lFtrCols.index(ctlg)]) > 0:
+                                continue
+                            if ctlg == "year":
+                                var = (float(rst[0][0]) - mnYear) / (mxYear - mnYear)
+                            else:
+                                var = (float(rst[0][0]) - mnRntms) / (mxRntms - mnRntms)
+                            info_output[idxRow, i] = var
+                    else:
+                        otrs = 0.0
+                        inc = 1.0/(idxCtlg[lFtrCols.index(ctlg)+1] - idxCtlg[lFtrCols.index(ctlg)] - 1)
+                        if rst[0][0] == '':
+                            # null column equals 1
+                            info_output[idxRow, idxCtlg[lFtrCols.index(ctlg) + 1] - 2] = 1.0
+                            continue
+                        else:
+                            r=0.0
+                            for value in rst[0][0].split('$'): 
+                                if lValue[i] == value:
+                                    r = 1.0
+                                else:
+                                    otrs += inc
+                            info_output[idxRow, i] = r
+                        # others column equals 1
+                        info_output[idxRow, idxCtlg[lFtrCols.index(ctlg) + 1] - 1] = otrs  
+                conn.commit()
+            if mode == "old":
+                for keyword in lRtgCols:
+                    cur.execute("SELECT %s FROM rating WHERE id= '%s'" % (keyword, str(mvID[0])))
+                    rst = cur.fetchall()
+                    rating_output[idxRow, lRtgCols.index(keyword)] = float(rst[0][0])
+            print ' - SCAN_ROW - ID: %s Scan successfully.' % mvID[0]
+            idxRow += 1
+    except Exception as e:
+            print ' - GENERATE_MATRICES - An {} exception occured'.format(e)
 
 
 def printvars():
     global mxYear, mnYear, mxRntms, mnRntms
     print len(lValue)
-    print lValue
-    print idxValue
-    print str(mxYear) + ' '+str(mnYear)
-    print str(mxRntms) + ' ' + str(mnRntms)
+    # print lValue
+    print idxCtlg
+    # print str(mxYear) + ' '+str(mnYear)
+    # print str(mxRntms) + ' ' + str(mnRntms)
 
 
 if __name__ == '__main__':
     connect_to_sql()
     scan_column()
     printvars()
-    # generate_matrices()
-    # if mode == "old":
-    #     np.savetxt('info.txt', info_output)
-    #     np.savetxt('rating.txt', rating_output)
+    generate_matrices()
+    if mode == "old":
+        np.savetxt('info.txt', info_output)
+        np.savetxt('rating.txt', rating_output)
     # elif mode == "new":
     #     np.savetxt('f_info.txt', info_output)
     conn.close()
