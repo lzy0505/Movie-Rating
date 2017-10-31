@@ -15,6 +15,7 @@ def create_table():
 
     # create info table
     cDB.execute("CREATE TABLE feature (\n"
+    + "type TEXT  NOT NULL,\n"
     + "id TEXT PRIMARY KEY NOT NULL,\n"
     + "title TEXT NOT NULL,\n"
     + "cover_url TEXT NOT NULL,\n"
@@ -43,7 +44,6 @@ def create_table():
 
     cDB.execute("CREATE TABLE rating("
     + "id TEXT PRIMARY KEY NOT NULL,\n"
-    + "type TEXT  NOT NULL,\n"
     + "real_1 REAL DEFAULT NULL,\n"
     + "real_2 REAL DEFAULT NULL,\n"
     + "real_3 REAL DEFAULT NULL,\n"

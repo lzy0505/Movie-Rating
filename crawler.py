@@ -9,7 +9,7 @@ from movie import Movie
 from threading import Thread
 
 # We use multi-thread to crawl the data
-thread_number = 5
+thread_number = 9
 
 # Below are variables associated with IMDB data
 imdb_new_movie_url = 'http://www.imdb.com/movies-coming-soon/'
@@ -23,7 +23,7 @@ mvINQ = Queue(maxsize=100)
 begin_year = 2016
 end_year = 2016
 begin_month = 1
-end_month = 3
+end_month = 6
 # the mode indicate that whether get rating of movies
 mode = "old"
 
@@ -55,7 +55,7 @@ def get_IDs():
                         m_id = m_id[9: m_id.index('?')-1]
                         # put id into queue
                         mvIDQ.put(m_id)
-                        print "-CRAWLER- Got movie id: %s" % m_id
+                        # print "-CRAWLER- Got movie id: %s" % m_id
     stage = 1
     print '-CRAWLER- Finished on getting movie id.'
 
@@ -68,7 +68,7 @@ def get_info():
         try:
             mvID = mvIDQ.get()
             # get info from imdmpy with movie id
-            print "-CRAWLER- Getting movie(id: %s) feature..." % mvID
+            # print "-CRAWLER- Getting movie(id: %s) feature..." % mvID
             mvIN = imdb_access.get_movie(mvID)
             # create new Movie object
             mvOJ = Movie()
@@ -199,22 +199,26 @@ def get_info():
             mvINQ.put(mvID)
         time.sleep(1)
     stage = 2
+    print "Done!"
     print '-CRAWLER- Finished on getting movie features.'
         
 
 def store_movies():
+    counter = 0
     global stage
     time.sleep(20)
     print "-CRAWLER- Start to store movie feature..."
     conn = sqlite3.connect("movie.db")
     cur = conn.cursor()
     while (not mvINQ.empty()) or stage < 2:
-        time.sleep(2)
+        time.sleep(1)
         try:
             mvIN = mvINQ.get()
+            counter += 1
             cur.execute(
-                "INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (mvIN.id,
+                "INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (mode,
+                    mvIN.id,
                     mvIN.title,
                     mvIN.cover_url,
                     mvIN.giant_cover_url,
@@ -236,7 +240,6 @@ def store_movies():
                     mvIN.production_companies,
                     mvIN.year,
                     mvIN.runtimes))
-
             if mode == 'old':
                 ssum = 0.0
                 rating = []
@@ -246,9 +249,8 @@ def store_movies():
                 for i in xrange(0, len(rating)):
                     rating[i] = rating[i]/ssum
                 cur.execute(
-                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (mvIN.id, 
-                        "old",
                         rating[0],
                         rating[1],
                         rating[2],
@@ -271,9 +273,8 @@ def store_movies():
                         "NULL"))
             else:
                 cur.execute(
-                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (mvIN.id, 
-                        "new",
+                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (mvIN.id,
                         "NULL",
                         "NULL",
                         "NULL",
@@ -295,13 +296,13 @@ def store_movies():
                         "NULL",
                         "NULL"))
             conn.commit()
-            # print '-CRAWLER- Store moive(ID: %s) into database successfully.' % mvIN.id
+            print '-CRAWLER- Store moive(ID: %s) successfully.(Remain %d)' % (mvIN.id,mvIDQ.qsize()+mvINQ.qsize())
+           
             mvINQ.task_done()
         except Exception, e:
             print '-CRAWLER- An {} exception occured'.format(e)
     conn.close()
     print "-CRAWLER- Finished on store movie feature..."
-    print 'Done crawling data from IMDB!'
 
 
 def thread_init():
@@ -317,5 +318,8 @@ def thread_init():
 if __name__ == '__main__':
     thread_init()
     get_IDs()
+    mvIDQ.join()
+    mvINQ.join()
+    print "Finnish ALL!"
 
     
