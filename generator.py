@@ -1,7 +1,9 @@
 import sqlite3
-import scipy.io as sio
+import scipy as sp
 import numpy as np
+import bfgslld as alg
 import random
+import indices as idcs
 
 
 mode = "old"
@@ -15,6 +17,8 @@ lFtrCols = ["year", "runtimes", "genres", 'color_info', 'director', 'cast_1st',
                'original_music', 'sound_mix', 'production_companies']
 lRtgCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
                "real_7", "real_8", "real_9", "real_10"]
+lPtgCols = ["predict_1", "predict_2", "predict_3", "predict_4", "predict_5", "predict_6",
+"predict_7", "predict_8", "predict_9", "predict_10"]
 
 # threshold = [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 7]
 threshold = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -47,9 +51,9 @@ def scan_column():
         for ctlg in lFtrCols:
             idxCtlg.append(index)
             command = "SELECT %s FROM feature" % ctlg
-            print "executing %s..." % command
+            #  print "executing %s..." % command
             cur.execute(command)
-            print "scanning %s..." % ctlg
+            print "-GENERATE- Scanning %s..." % ctlg
             result = cur.fetchall()
             # get the max& min value of year and runtimes by iteration
             if ctlg == 'year' or ctlg == 'runtimes':
@@ -101,7 +105,7 @@ def scan_column():
                 lValue.append('Others_%s' % ctlg)
                 index += 1
             conn.commit()
-            print '-SCAN- Catalog %s scan successfully.' % ctlg
+            # print '-SCAN- Catalog %s scan successfully.' % ctlg
         idxCtlg.append(index)
     except Exception as e:
             print '-SCAN- An {} exception occured'.format(e)
@@ -153,20 +157,34 @@ def generate_matrices(mvID):
                 cur.execute("SELECT %s FROM rating WHERE id= '%s'" % (keyword, str(mvID)))
                 rst = cur.fetchall()
                 oneLbl[0, lRtgCols.index(keyword)] = float(rst[0][0])
-        print ' - SCAN_ROW - ID: %s Scan successfully.' % mvID
+        # print ' - SCAN_ROW - ID: %s Scan successfully.' % mvID
         return (oneFtr, oneLbl)
     except Exception as e:
-        print ' - GENERATE_MATRICES - An {} exception occured'.format(e)
+        print '-GENERATE_MATRICES- An {} exception occured!'.format(e)
 
+def predict(slctMvID):
+    global oTrnFtr,oTrnLbl,oTstFtr
+    print "-ALGORITHM- Training model..."
+    oPdctLbl=alg.run(oTrnFtr,oTrnLbl,oTstFtr)
+    print "-PREDICTION- Recording results..."
+    for i in xrange(oPdctLbl.shape[0]):
+        for j in xrange(oPdctLbl.shape[1]):
+            cur.execute('UPDATE rating SET %s = ? WHERE id = ?'%lPtgCols[j],(oPdctLbl[i][j],slctMvID[i]))
+        cur.execute('UPDATE feature SET type = "predicted" WHERE id = %s'%(slctMvID[i]))
+    conn.commit()
 
 def convert():
+    global oTrnFtr,oTrnLbl,oTstFtr
+    # record the mvid of selected instance
+    slctMvID = []
     if mode == "new":
         # train set & test set
         oTrnFtr = None
         oTrnLbl = None
         oTstFtr = None
 
-        cur.execute('SELECT id FROM feature WHERE mode = "old"')
+        # generate train set
+        cur.execute('SELECT id FROM feature WHERE type = "old"')
         rstID = cur.fetchall()
         for mvID in rstID:
             (oneFtr, oneLbl) = generate_matrices(mvID[0])
@@ -177,32 +195,21 @@ def convert():
                 oTrnFtr = np.concatenate((oTrnFtr, oneFtr))
                 oTrnLbl = np.concatenate((oTrnLbl, oneLbl))
 
-        cur.execute('SELECT id FROM feature WHERE mode = "new"')
+        # generate test set
+        cur.execute('SELECT id FROM feature WHERE type = "new"')
         rstID = cur.fetchall()
         for mvID in rstID:
+            slctMvID.append(mvID[0])
             (oneFtr, oneLbl) = generate_matrices(mvID[0])
             if oTstFtr is None:
                 oTstFtr = oneFtr
             else:
                 oTstFtr = np.concatenate((oTrnFtr, oneFtr))
 
-        (r, c) = oTrnFtr.shape
-        trainNum = r
-        (r, c) = oTstFtr.shape
-        testNum = r
-
-        print oTrnFtr.shape
-        print oTrnLbl.shape
-        print oTstFtr.shape
-
-        sio.savemat('f_movieDataSet.mat', {'testFeature':oTstFtr, 'testNum':testNum, 'trainDistribution':oTrnLbl, 'trainFeature':oTrnFtr, 'trainNum':trainNum})
     elif mode == "old":
 
-        cur.execute('SELECT id FROM feature WHERE mode = "old"')
+        cur.execute('SELECT id FROM feature WHERE type = "old"')
         rstID = cur.fetchall()
-
-        # record the mvid of selected instance
-        slctMvID = []
         # randomly select 1/numPrtn of instances
         numPrtn = 10
 
@@ -236,33 +243,29 @@ def convert():
                 else:
                     oTrnFtr = np.concatenate((oTrnFtr, oneFtr))
                     oTrnLbl = np.concatenate((oTrnLbl, oneLbl))
-        
-        # get size of train set & test set
-        (r, c) = oTrnFtr.shape
-        trainNum = r
-        (r, c) = oTstFtr.shape
-        testNum = r
 
-        print oTrnFtr.shape
-        print oTrnLbl.shape
-        print oTstFtr.shape
-        print oTstLbl.shape
-        print trainNum + testNum
+    # train the model
+    predict(slctMvID)
 
-    sio.savemat('o_movieDataSet.mat', {'testDistribution': oTstLbl, 'testFeature': oTstFtr, 'testNum':testNum,'trainDistribution':oTrnLbl,'trainFeature':oTrnFtr,'trainNum':trainNum})
+
+
+
+
 
 
 def printvars():
-    global mxYear, mnYear, mxRntms, mnRntms
+    global oTrnFtr,oTrnLbl,oTstFtr
     print len(lValue)
-    # print lValue
     print idxCtlg
+    print oTrnFtr.shape
+    print oTrnLbl.shape
+    print oTstFtr.shape
 
 
 if __name__ == '__main__':
     connect_to_sql()
     scan_column()
-    printvars()
     convert()
+    printvars()
     conn.close()
     print 'Done generating matrices from database!'
