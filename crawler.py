@@ -60,6 +60,16 @@ def get_IDs():
     print '-CRAWLER- Finished on getting movie id.'
 
 
+def get_rating(mvID):
+    url = "http://www.imdb.com/title/tt%s/ratings?ref_=tt_ov_rt"% mvID
+    soup = BeautifulSoup(requests.get(url).content,"lxml")
+    lVoting=soup.body.find('div',id='wrapper').find('div',id='root').find('div',id='pagecontent').find('div',id='content-2-wide').find('div',id='main').section.find('div',class_='title-ratings-sub-page').table.find_all('div',class_="leftAligned")
+    lIntVoting=[]
+    for i in xrange(1,len(lVoting)):
+        lIntVoting.append(int(lVoting[i].string.replace(",", "")))
+    return lIntVoting
+
+
 def get_info():
     global stage
     time.sleep(5)
@@ -186,16 +196,14 @@ def get_info():
             # if 'budget' in mvIN:
             #     mvOJ.budget = mvIN.get('budget')
             # get rating for old movies
-            if mode == "old":
-                imdb_access.update(mvIN, info=('vote details'))
-                mvOJ.number_of_votes = mvIN.get('number of votes')
-                
+            if mode == "old":  
+                mvOJ.number_of_votes = get_rating(mvID)
             mvINQ.put(mvOJ)
             mvIDQ.task_done()
             # print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
         # TODO cannot handle exception
         except Exception, e:
-            print '-CRAWLER- An {} exception occured'.format(e), mvID
+            print '-CRAWLER- An {} exception occured!'.format(e), mvID
             mvINQ.put(mvID)
         time.sleep(1)
     stage = 2
@@ -204,17 +212,14 @@ def get_info():
         
 
 def store_movies():
-    counter = 0
     global stage
     time.sleep(20)
     print "-CRAWLER- Start to store movie feature..."
     conn = sqlite3.connect("movie.db")
     cur = conn.cursor()
     while (not mvINQ.empty()) or stage < 2:
-        time.sleep(1)
         try:
             mvIN = mvINQ.get()
-            counter += 1
             cur.execute(
                 "INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (mode,
@@ -244,12 +249,13 @@ def store_movies():
                 ssum = 0.0
                 rating = []
                 for n in mvIN.number_of_votes:
-                    ssum += mvIN.number_of_votes[n]
-                    rating.append(mvIN.number_of_votes[n])
+                    ssum += n
+                    rating.append(n)
                 for i in xrange(0, len(rating)):
                     rating[i] = rating[i]/ssum
+
                 cur.execute(
-                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (mvIN.id, 
                         rating[0],
                         rating[1],
@@ -270,10 +276,12 @@ def store_movies():
                         "NULL",
                         "NULL",
                         "NULL",
+                        "NULL",
+                        "NULL",
                         "NULL"))
             else:
                 cur.execute(
-                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (mvIN.id,
                         "NULL",
                         "NULL",
@@ -294,13 +302,14 @@ def store_movies():
                         "NULL",
                         "NULL",
                         "NULL",
+                        "NULL",
+                        "NULL",
                         "NULL"))
-            conn.commit()
             print '-CRAWLER- Store moive(ID: %s) successfully.(Remain %d)' % (mvIN.id,mvIDQ.qsize()+mvINQ.qsize())
-           
+            conn.commit()
             mvINQ.task_done()
         except Exception, e:
-            print '-CRAWLER- An {} exception occured'.format(e)
+            print '-CRAWLER- An {} exception occured at store_movies()!'.format(e)
     conn.close()
     print "-CRAWLER- Finished on store movie feature..."
 

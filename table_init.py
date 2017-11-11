@@ -63,8 +63,9 @@ def create_table():
     + "predict_7 REAL DEFAULT NULL,\n"
     + "predict_8 REAL DEFAULT NULL,\n"
     + "predict_9 REAL DEFAULT NULL,\n"
-    + "predict_10 REAL DEFAULT NULL"
-    # + "predict_time  DEFAULT NULL,\n"
+    + "predict_10 REAL DEFAULT NULL,\n"
+    + "predict_time TEXT DEFAULT NULL,\n"
+    + "predict_text TEXT DEFAULT NULL"
     + ")")
     print "-INIT- Table rating has been created."
 

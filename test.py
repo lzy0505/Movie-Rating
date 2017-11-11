@@ -1,9 +1,15 @@
-def func():
-    b = range(18)
-    a=[0,5,10,13,17]
-    for i in xrange(0,len(a)-1):
-        for j in xrange(a[i],a[i+1]):
-            print b[j]
+# -*- coding:utf-8 -*-
+import sqlite3
+
+def func(mvID):
+    try:
+		conn = sqlite3.connect('movie.db') 
+		cur = conn.cursor()
+    except Exception as e:
+        print ' - CONNECT_TO_SQL - An {} exception occured.'.format(e)
+    cur.execute("SELECT title,cover_url,year FROM feature WHERE id=%s"%mvID)
+    rst=cur.fetchone()
+
 
 if __name__ == '__main__':
-    func()
+    func("3103166")

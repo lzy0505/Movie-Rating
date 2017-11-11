@@ -3,11 +3,11 @@ import scipy as sp
 import numpy as np
 import bfgslld as alg
 import random
+from datetime import date
 import indices as idcs
 
 
 mode = "old"
-
 cur = None
 conn = None
 
@@ -162,8 +162,21 @@ def generate_matrices(mvID):
     except Exception as e:
         print '-GENERATE_MATRICES- An {} exception occured!'.format(e)
 
+def get_format_info(mvID):
+    s = ""
+    cur.execute("SELECT title,year FROM feature WHERE id=? ",(mvID,))
+    lRst = cur.fetchone()
+    s += (lRst[0]+'-'+str(lRst[1])+'-'+mvID+'|')
+    for col in lPtgCols:
+        cur.execute("SELECT %s FROM rating WHERE id=? " % col,(mvID,))
+        rst = cur.fetchone()
+        s += (col+','+str(rst[0])+'-')
+    s.rstrip("-")
+    return s
+
 def predict(slctMvID):
     global oTrnFtr,oTrnLbl,oTstFtr
+    strDate = date.today().isoformat()
     print "-ALGORITHM- Training model..."
     oPdctLbl=alg.run(oTrnFtr,oTrnLbl,oTstFtr)
     print "-PREDICTION- Recording results..."
@@ -171,6 +184,7 @@ def predict(slctMvID):
         for j in xrange(oPdctLbl.shape[1]):
             cur.execute('UPDATE rating SET %s = ? WHERE id = ?'%lPtgCols[j],(oPdctLbl[i][j],slctMvID[i]))
         cur.execute('UPDATE feature SET type = "predicted" WHERE id = %s'%(slctMvID[i]))
+        cur.execute('UPDATE rating SET predict_time = ?,predict_text= ? WHERE id = %s' % (slctMvID[i]),(strDate,(get_format_info(slctMvID[i])+"|"+strDate)))
     conn.commit()
 
 def convert():

@@ -1,5 +1,4 @@
 from flask import Flask,render_template,request,url_for,redirect
-import MySQLdb
 from flask_nav import Nav,register_renderer
 from flask_bootstrap.nav import BootstrapRenderer
 from flask_nav.elements import *
@@ -15,11 +14,9 @@ info_name={'title':'Title','genres':'Genres','color_info':'Color','director':'Di
 'writer':'Writer','editor':'Editor','cinematographer':'Cinematographer','art_direction':'Art Direction','costume_designer':'Costume Designer','original_music':'Original music by','sound_mix':'Sound Mix',
 'production_companies':'Production Company','cheby':'Chebyshev','clark':'Clark','cbra':'Canberra','k-l':'Kullback-Leibler','cos':'Cosine','intsc':'Intersection'}
 
-index=['cheby','clark','cbra','k-l','cos','intsc']
+indices=['cheby','clark','cbra','k-l','cos','intsc']
 
-print("Loading data.....")
-database.init()
-print("Completed.")
+
 class CustomRenderer(BootstrapRenderer):
     def visit_Navbar(self, node):
         nav_tag = super(CustomRenderer, self).visit_Navbar(node)
@@ -30,8 +27,9 @@ nav=Nav()
 
 nav.register_element('top', Navbar(
     "Movie Rating Project",
-    View('Old Movies Rating Comparing', 'oldpreview'),
-    View('New Movies Rating Predicting', 'newpreview')
+    View('Old Movies Rating Comparing', 'preview')
+    # ,
+    # View('New Movies Rating Predicting', 'newpreview')
 ))
 
 app = Flask(__name__)
@@ -43,28 +41,28 @@ Bootstrap(app)
 
 @app.route('/')
 def home():
-    return redirect(url_for('oldpreview'))
+    return redirect(url_for('preview'))
 
-@app.route('/oldpreview')
-def oldpreview():
-    movies=database.get_instance_basic("new_movies")
-    return render_template('old_index_layout.html',movies=movies)
+@app.route('/preview')
+def preview():
+    movies=database.select_movie()
+    return render_template('index_layout.html',movies=movies)
 
 
-@app.route('/newpreview')
-def newpreview():
-    movies=database.get_instance_basic("future_movies")
-    return render_template('new_index_layout.html',movies=movies)
+# @app.route('/newpreview')
+# def newpreview():
+#     movies=database.get_instance_basic("future_movies")
+#     return render_template('new_index_layout.html',movies=movies)
 
-@app.route('/newdetails/<movieid>')
-def newdetails(movieid):
-    movie=database.get_instance_details('future_movies',movieid)
-    return render_template('new_details_layout.html',info_cols=info_cols,movie=movie,name=info_name)
+# @app.route('/newdetails/<movieid>')
+# def newdetails(movieid):
+#     movie=database.get_instance_details('future_movies',movieid)
+#     return render_template('new_details_layout.html',info_cols=info_cols,movie=movie,name=info_name)
 
-@app.route('/olddetails/<movieid>')
-def olddetails(movieid):
-    movie=database.get_instance_details('new_movies',movieid)
-    return render_template('old_details_layout.html',info_cols=info_cols,movie=movie,name=info_name,indexs=index)
+# @app.route('/details/<movieid>')
+# def olddetails(movieid):
+#     movie=database.get_instance_details('new_movies',movieid)
+#     return render_template('details_layout.html',info_cols=info_cols,movie=movie,name=info_name,indices=indices)
 
 
 if __name__ == '__main__':
