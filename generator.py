@@ -4,7 +4,8 @@ import numpy as np
 import bfgslld as alg
 import random
 from datetime import date
-import indices as idcs
+import website.indices as idcs
+import timestamp as ts
 
 
 mode = "old"
@@ -184,7 +185,11 @@ def predict(slctMvID):
         for j in xrange(oPdctLbl.shape[1]):
             cur.execute('UPDATE rating SET %s = ? WHERE id = ?'%lPtgCols[j],(oPdctLbl[i][j],slctMvID[i]))
         cur.execute('UPDATE feature SET type = "predicted" WHERE id = %s'%(slctMvID[i]))
-        cur.execute('UPDATE rating SET predict_time = ?,predict_text= ? WHERE id = %s' % (slctMvID[i]),(strDate,(get_format_info(slctMvID[i])+"|"+strDate)))
+        txtPrdct = get_format_info(slctMvID[i])+"|"+strDate
+        cur.execute('UPDATE rating SET predict_time = ?,predict_text= ? WHERE id = %s' % (slctMvID[i]),(strDate,txtPrdct))
+        (created,completed) = ts.stamp(txtPrdct)
+        if created == False:
+            print "-TIMESTAMP- Something wrong happened!"
     conn.commit()
 
 def convert():

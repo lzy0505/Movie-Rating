@@ -17,7 +17,7 @@
         <tr style="height:70px;">
         </tr>
         <tr><td width="50"> 
-            <td><p><img src="{{movie['cover_url']}}" width="320" height="430">
+            <td><p><img src="{{movie['giant_cover_url']}}" width="320" height="430">
                         </p>
             </td>
             <td width="100">            
@@ -46,6 +46,28 @@
             </tr>
         </table>
 
+        <table>
+            <tr><td width="100"></td><td width="200">Predicted date: 
+            </td>
+                <td>{{movie['predict_time']}}
+            </td><td width="50"></td>
+            </tr>
+            <tr><td width="100"></td><td>Predicted info: 
+            </td>
+                <td>
+                        {{movie['predict_text']}}
+            </td>
+            </tr>
+            <tr><td width="100"></td><td>SHA-256: 
+            </td>
+                <td>{{movie['sha256']}}
+            </td>
+            </tr>
+            <tr><td width="100"></td><td>Verified link: 
+            </td>
+                <td><a href='{{movie['verify_url']}}'>LINK</a>
+            </td>
+            </tr></table>
         <table style="max-width: 1000px; height: 400px; margin: 0 auto">
             <tr>
                 <td>
@@ -56,18 +78,14 @@
                     <thead class="thead-default">
                     <tr><th>Metrics</th>
                         <th>    </th>
-                        <th>BFGS</th>
+                        <th>Value</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>{%for i in indexs%}
-                        <td>{{name[i]}}</td>
+                    <tr>{%for m in metrics%}
+                        <td>{{name[m]}}</td>
                         <td></td>
-                        <td>{%if movie['better_'+i] <=0 %}
-                                <b>{{movie['b_'+i]}}</b>
-                                {% else %}
-                                {{movie['b_'+i]}}
-                            {% endif %}</td>
+                        <td>{{movie['metrics'][m]}}</td>
                         </tr>
                         <tr>
                         {% endfor %}
@@ -88,7 +106,7 @@
                 text: 'Rating Distribution Comparison'
             },
             xAxis: {
-                text: 'Rating Points',
+                text: 'Rating Score',
                 categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
             },
             yAxis: {
@@ -105,33 +123,16 @@
                 }
             },
             series: [{
-                name: 'Predicted Distribution(BFGS)',
+                name: 'Predicted Distribution',
                 color: '#4D4DFF',
-                data: [{{movie['b_p_number_of_votes_1']}}/100, 
-                {{movie['b_p_number_of_votes_2']}}/100, 
-                {{movie['b_p_number_of_votes_3']}}/100, 
-                {{movie['b_p_number_of_votes_4']}}/100, 
-                {{movie['b_p_number_of_votes_5']}}/100, 
-                {{movie['b_p_number_of_votes_6']}}/100, 
-                {{movie['b_p_number_of_votes_7']}}/100, 
-                {{movie['b_p_number_of_votes_8']}}/100, 
-                {{movie['b_p_number_of_votes_9']}}/100, 
-                {{movie['b_p_number_of_votes_10']}}/100]
-            },{
-                name: 'Real Distribution',
-                color:'#000000',
-                data: [{{movie['r_number_of_votes_1']}}/100, 
-                {{movie['r_number_of_votes_2']}}/100, 
-                {{movie['r_number_of_votes_3']}}/100, 
-                {{movie['r_number_of_votes_4']}}/100, 
-                {{movie['r_number_of_votes_5']}}/100, 
-                {{movie['r_number_of_votes_6']}}/100, 
-                {{movie['r_number_of_votes_7']}}/100, 
-                {{movie['r_number_of_votes_8']}}/100, 
-                {{movie['r_number_of_votes_9']}}/100, 
-                {{movie['r_number_of_votes_10']}}/100]
-            }
-            ]
+                data: [{% for rating in movie['rating'] %}{{rating}}/100{% if loop.index ==10%}
+                            ]
+                            },{
+                                name: 'Real Distribution',
+                                color:'#000000',
+                                data: [
+                            {% elif loop.index == 20 %}]}{% else%},{% endif %}
+                        {% endfor %}]
         });
     </script>
 {% endblock %}
