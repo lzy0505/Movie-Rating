@@ -28,10 +28,10 @@ class CustomRenderer(BootstrapRenderer):
 nav=Nav()
 
 nav.register_element('top', Navbar(
-    "Movie Rating Project",
-    View('Movies Rating Comparing', 'preview')
+    # Link('Tech Support', href='http://techsupport.invalid/widgits_inc')
     # ,
-    # View('New Movies Rating Predicting', 'newpreview')
+    "Movie Rating Project",
+    View('Index', 'preview')
 ))
 
 app = Flask(__name__)
@@ -50,10 +50,11 @@ def details():
     for m in database.select_movie():
         yield {'movieid': m[0].encode('utf-8')}
 
-
-@app.route('/')
-def home():
-    return redirect(url_for('preview'))
+# @app.route('/')
+# def home():
+#     movies=database.select_movie()
+#     return render_template('index_layout.html',movies=movies)
+    # return redirect(url_for('preview'))
 
 @app.route('/preview/')
 def preview():
@@ -68,5 +69,5 @@ def details(movieid):
 
 if __name__ == '__main__':
     # freezer.freeze()
-    # freezer.run(debug=True)
-    app.run()
+    freezer.run(debug=True)
+   	# app.run()
