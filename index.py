@@ -3,7 +3,6 @@ from flask_nav import Nav,register_renderer
 from flask_bootstrap.nav import BootstrapRenderer
 from flask_nav.elements import *
 from flask_bootstrap import Bootstrap
-from flask_frozen import Freezer
 import database
 
 
@@ -35,26 +34,18 @@ nav.register_element('top', Navbar(
 ))
 
 app = Flask(__name__)
-app.config['FREEZER_RELATIVE_URLS'] = True
+
 register_renderer(app, 'custom', CustomRenderer)
 
 nav.init_app(app)
 
 Bootstrap(app)
 
-freezer = Freezer(app)
 
 
-@freezer.register_generator
-def details():
-    for m in database.select_movie():
-        yield {'movieid': m[0].encode('utf-8')}
-
-# @app.route('/')
-# def home():
-#     movies=database.select_movie()
-#     return render_template('index_layout.html',movies=movies)
-    # return redirect(url_for('preview'))
+@app.route('/')
+def home():
+	return redirect(url_for('preview'))
 
 @app.route('/preview/')
 def preview():
@@ -68,6 +59,4 @@ def details(movieid):
 
 
 if __name__ == '__main__':
-    # freezer.freeze()
-    freezer.run(debug=True)
-   	# app.run()
+   	app.run()

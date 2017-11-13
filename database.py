@@ -3,9 +3,7 @@ import scipy.io as sio
 import sqlite3
 import indices as metrics
 from decimal import *
-import sys
-sys.path.append("..")
-import timestamp as ts
+import data.timestamp as ts
 
 lFtrCols = ["title","year", "runtimes","giant_cover_url","genres", 'color_info', 'director', 'cast_1st',
                'cast_2nd', 'cast_3rd', 'countries', 'languages', 'writer',
