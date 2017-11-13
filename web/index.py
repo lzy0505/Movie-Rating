@@ -57,6 +57,9 @@ def details(movieid):
     movie=database.get_instance_details(movieid)
     return render_template('details_layout.html',info_cols=lFtrCols,movie=movie,name=info_name,metrics=indices)
 
+def run():
+	app.run()
+
 
 if __name__ == '__main__':
    	app.run()
