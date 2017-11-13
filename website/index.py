@@ -35,7 +35,7 @@ nav.register_element('top', Navbar(
 ))
 
 app = Flask(__name__)
-app.config['FREEZER_RELATIVE_URLS'] = True
+# app.config['FREEZER_RELATIVE_URLS'] = True
 register_renderer(app, 'custom', CustomRenderer)
 
 nav.init_app(app)
@@ -68,6 +68,6 @@ def details(movieid):
 
 
 if __name__ == '__main__':
-    # freezer.freeze()
-    freezer.run(debug=True)
+    freezer.freeze()
+    # freezer.run(debug=True)
    	# app.run()
