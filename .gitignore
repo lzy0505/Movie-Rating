@@ -1,7 +1,5 @@
 *.pyc
 *.mat
-*.db
-
 
 # Elastic Beanstalk Files
 
