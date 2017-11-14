@@ -33,33 +33,30 @@ nav.register_element('top', Navbar(
     View('Index', 'preview')
 ))
 
-app = Flask(__name__)
+application = Flask(__name__)
 
-register_renderer(app, 'custom', CustomRenderer)
+register_renderer(application, 'custom', CustomRenderer)
 
-nav.init_app(app)
+nav.init_app(application)
 
-Bootstrap(app)
+Bootstrap(application)
 
 
 
-@app.route('/')
+@application.route('/')
 def home():
 	return redirect(url_for('preview'))
 
-@app.route('/preview/')
+@application.route('/preview/')
 def preview():
     movies=database.select_movie()
     return render_template('index_layout.html',movies=movies)
 
-@app.route('/details/<movieid>/')
+@application.route('/details/<movieid>/')
 def details(movieid):
     movie=database.get_instance_details(movieid)
     return render_template('details_layout.html',info_cols=lFtrCols,movie=movie,name=info_name,metrics=indices)
 
-def run():
-	app.run()
-
 
 if __name__ == '__main__':
-   	app.run()
+   	application.run()

@@ -1,0 +1,24 @@
+[Tue Nov 14 09:09:43.895335 2017] [suexec:notice] [pid 3029] AH01232: suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Tue Nov 14 09:09:43.906391 2017] [lbmethod_heartbeat:notice] [pid 3029] AH02282: No slotmem from mod_heartmonitor
+[Tue Nov 14 09:09:43.906421 2017] [:warn] [pid 3029] mod_wsgi: Compiled for Python/2.7.10.
+[Tue Nov 14 09:09:43.906436 2017] [:warn] [pid 3029] mod_wsgi: Runtime using Python/2.7.12.
+[Tue Nov 14 09:09:43.907969 2017] [mpm_prefork:notice] [pid 3029] AH00163: Apache/2.4.27 (Amazon) mod_wsgi/3.5 Python/2.7.12 configured -- resuming normal operations
+[Tue Nov 14 09:09:43.907983 2017] [core:notice] [pid 3029] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Tue Nov 14 09:10:09.213562 2017] [mpm_prefork:notice] [pid 3029] AH00169: caught SIGTERM, shutting down
+[Tue Nov 14 09:10:10.255681 2017] [suexec:notice] [pid 3238] AH01232: suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Tue Nov 14 09:10:10.267012 2017] [so:warn] [pid 3238] AH01574: module wsgi_module is already loaded, skipping
+[Tue Nov 14 09:10:10.269374 2017] [lbmethod_heartbeat:notice] [pid 3238] AH02282: No slotmem from mod_heartmonitor
+[Tue Nov 14 09:10:10.269424 2017] [:warn] [pid 3238] mod_wsgi: Compiled for Python/2.7.10.
+[Tue Nov 14 09:10:10.269428 2017] [:warn] [pid 3238] mod_wsgi: Runtime using Python/2.7.12.
+[Tue Nov 14 09:10:10.271375 2017] [mpm_prefork:notice] [pid 3238] AH00163: Apache/2.4.27 (Amazon) mod_wsgi/3.5 Python/2.7.12 configured -- resuming normal operations
+[Tue Nov 14 09:10:10.271390 2017] [core:notice] [pid 3238] AH00094: Command line: '/usr/sbin/httpd -D FOREGROUND'
+[Tue Nov 14 09:10:12.860551 2017] [:error] [pid 3244] [client 127.0.0.1:57190] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py
+[Tue Nov 14 09:10:13.862736 2017] [:error] [pid 3245] [client 127.0.0.1:57192] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py
+[Tue Nov 14 09:10:14.864784 2017] [:error] [pid 3246] [client 127.0.0.1:57194] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py
+[Tue Nov 14 09:10:15.866840 2017] [:error] [pid 3247] [client 127.0.0.1:57196] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py
+[Tue Nov 14 09:11:47.678045 2017] [:error] [pid 3245] [client 172.31.46.245:23598] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py
+[Tue Nov 14 09:11:49.110784 2017] [:error] [pid 3245] [client 172.31.46.245:23598] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py, referer: http://movie-rating.djy8jxyxyw.us-west-2.elasticbeanstalk.com/
+[Tue Nov 14 09:12:08.315915 2017] [:error] [pid 3246] [client 172.31.46.245:23640] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py
+[Tue Nov 14 09:12:22.288857 2017] [:error] [pid 3246] [client 172.31.46.245:23664] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py
+[Tue Nov 14 09:12:27.411091 2017] [:error] [pid 3291] [client 172.31.46.245:23670] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py
+[Tue Nov 14 09:28:23.730457 2017] [:error] [pid 3406] [client 172.31.26.81:49228] Target WSGI script not found or unable to stat: /opt/python/current/app/application.py

@@ -1,5 +1,3 @@
-import numpy as np
-import scipy.io as sio
 import sqlite3
 import indices as metrics
 from decimal import *
