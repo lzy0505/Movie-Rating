@@ -70,6 +70,27 @@ def get_rating(mvID):
     return lIntVoting
 
 
+def get_ranking(castid):
+    casturl = 'http://www.imdb.com/name/nm'+castid
+    soup = BeautifulSoup(requests.get(casturl).content,"lxml") 
+    toprank=soup.body.find('div',id='wrapper').find('div',id='root').find('div',id='pagecontent').find('div',id='content-2-wide').find('div',id='meterHeaderBox').find('a')
+    toprank=str(toprank)
+    toprank=toprank[toprank.index('>')+1:len(toprank)-4]
+    if(toprank.isalnum()==True):
+        ranking=int(toprank)
+        if(ranking<=50):
+            toprank='Top50' #if rank <=50 cluster TOP 50 
+        else:
+            toprank='Top500'
+        if(ranking<=5):
+            toprank='Top5' #if rank <=5 cluster TOP 5
+    if(toprank=='SEE RANK'):
+        toprank='5000+'
+    toprank=toprank.replace(' ','')
+    return toprank
+
+
+
 def get_info():
     global stage
     time.sleep(5)
@@ -110,12 +131,16 @@ def get_info():
                 mvOJ.director = sIN[0:len(sIN)-1] 
             # 1st Actor
             mvOJ.cast_1st = mvIN.get('cast')[0]['name']
+            # TODO 
+            mvOJ.cast_1st_rank = get_ranking(mvIN.get('cast')[0].getID())
             if len(mvIN.get('cast')) >= 2:
                 # 2nd Actor
                 mvOJ.cast_2nd = mvIN.get('cast')[1]['name']
+                mvOJ.cast_2nd_rank = get_ranking(mvIN.get('cast')[1].getID())
             if len(mvIN.get('cast')) >= 3:
                 # 3rd Actor
                 mvOJ.cast_3rd = mvIN.get('cast')[2]['name']
+                mvOJ.cast_3rd_rank = get_ranking(mvIN.get('cast')[2].getID())
             # country string list
             if mvIN.has_key('countries'):
                 sIN = ""
@@ -221,7 +246,7 @@ def store_movies():
         try:
             mvIN = mvINQ.get()
             cur.execute(
-                "INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (mode,
                     mvIN.id,
                     mvIN.title,
@@ -231,8 +256,11 @@ def store_movies():
                     mvIN.color_info,
                     mvIN.director,
                     mvIN.cast_1st,
+                    mvIN.cast_1st_rank,
                     mvIN.cast_2nd,
+                    mvIN.cast_2nd_rank,
                     mvIN.cast_3rd,
+                    mvIN.cast_3rd_rank,
                     mvIN.countries,
                     mvIN.languages,
                     mvIN.writer,

@@ -7,4 +7,5 @@
 
 
 virtualenv/
+.vscode/
 data/rating.txt

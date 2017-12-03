@@ -9,8 +9,11 @@ class Movie(object):
         self.color_info = ''
         self.director = ''
         self.cast_1st = ''
+        self.cast_1st_rank = ''
         self.cast_2nd = ''
+        self.cast_2nd_rank = ''
         self.cast_3rd = ''
+        self.cast_3rd_rank = ''
         self.countries = ''
         self.languages = ''
         self.writer = ''
@@ -59,12 +62,24 @@ class Movie(object):
         return self._cast_1st
 
     @property
+    def cast_1st_rank(self):
+        return self._cast_1st_rank
+
+    @property
     def cast_2nd(self):
         return self._cast_2nd
 
     @property
+    def cast_2nd_rank(self):
+        return self._cast_2nd_rank
+
+    @property
     def cast_3rd(self):
         return self._cast_3rd
+
+    @property
+    def cast_3rd_rank(self):
+        return self._cast_3rd_rank
 
     @property
     def countries(self):
@@ -154,13 +169,25 @@ class Movie(object):
     def cast_1st(self, value):
         self._cast_1st = value
 
+    @cast_1st_rank.setter
+    def cast_1st_rank(self, value):
+        self._cast_1st_rank = value
+
     @cast_2nd.setter
     def cast_2nd(self, value):
         self._cast_2nd = value
 
+    @cast_2nd_rank.setter
+    def cast_2nd_rank(self, value):
+        self._cast_2nd_rank = value
+
     @cast_3rd.setter
     def cast_3rd(self, value):
         self._cast_3rd = value
+
+    @cast_3rd_rank.setter
+    def cast_3rd_rank(self, value):
+        self._cast_3rd_rank = value
 
     @countries.setter
     def countries(self, value):

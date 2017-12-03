@@ -18,6 +18,7 @@ lRtgCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
                "real_7", "real_8", "real_9", "real_10"]
 lPtgCols = ["predict_1", "predict_2", "predict_3", "predict_4", "predict_5", "predict_6",
 "predict_7", "predict_8", "predict_9", "predict_10"]
+lRnk = ['Top5','Top50','Top500','Top5000','5000+']
 
 # threshold = [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 7]
 threshold = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -55,7 +56,7 @@ def scan_column():
             print "-GENERATE- Scanning %s..." % ctlg
             result = cur.fetchall()
             # get the max& min value of year and runtimes by iteration
-            if ctlg == 'year' or ctlg == 'runtimes':
+            if ctlg in ['year','runtimes']:
                 nullflag = False
                 for instance in result:
                     if instance[0] == 0:
@@ -98,11 +99,16 @@ def scan_column():
                         # add the value in  column list
                         lValue.append(key)
                         index += 1
+                if ctlg in ['cast_1st','cast_2nd', 'cast_3rd']:
+                    for r in lRnk:
+                        lValue.append(r+'_'+ctlg)
+                    index += len(lRnk)
+                else:
+                    lValue.append('Others_%s' % ctlg)
+                    index += 1        
                 if nullflag:
                     lValue.append('Null_%s' % ctlg)
                     index += 1
-                lValue.append('Others_%s' % ctlg)
-                index += 1
             conn.commit()
             # print '-SCAN- Catalog %s scan successfully.' % ctlg
         idxCtlg.append(index)
@@ -121,7 +127,7 @@ def generate_matrices(mvID):
             cur.execute("SELECT %s FROM feature WHERE id= '%s'" % (ctlg, str(mvID)))
             rst = cur.fetchall()
             for i in xrange(idxCtlg[lFtrCols.index(ctlg)], idxCtlg[lFtrCols.index(ctlg)+1]):
-                if ctlg == "year" or ctlg == "runtimes":
+                if ctlg in ["year", "runtimes"]:
                     if int(rst[0][0]) == 0:
                         oneFtr[0, i] = 0.0
                         oneFtr[0, idxCtlg[lFtrCols.index(ctlg)+1] - 1] = 1.0
@@ -134,11 +140,11 @@ def generate_matrices(mvID):
                             var = (float(rst[0][0]) - mnRntms) / (mxRntms - mnRntms)
                         oneFtr[0, i] = var
                 else:
-                    otrs = 0.0
-                    inc = 1.0/(idxCtlg[lFtrCols.index(ctlg)+1] - idxCtlg[lFtrCols.index(ctlg)] - 1)
+                    otrs = False
+                    # inc = 1.0/(idxCtlg[lFtrCols.index(ctlg)+1] - idxCtlg[lFtrCols.index(ctlg)] - 1)
                     if rst[0][0] == '':
                         # null column equals 1
-                        oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 2] = 1.0
+                        oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 1] = 1.0
                         continue
                     else:
                         r=0.0
@@ -146,10 +152,18 @@ def generate_matrices(mvID):
                             if lValue[i] == value:
                                 r = 1.0
                             else:
-                                otrs += inc
+                                # otrs += inc
+                                otrs = True
                         oneFtr[0, i] = r
-                    # others column equals 1
-                    oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 1] = otrs  
+                    if otrs:
+                        if ctlg in ['cast_1st','cast_2nd', 'cast_3rd']:
+                            cur.execute("SELECT %s FROM feature WHERE id= '%s'" % (ctlg+('_rank'), str(mvID)))
+                            rank = cur.fetchone() 
+                            offset = 6 - lRnk.index(rank[0])
+                            oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1]-offset]=1.0
+                        else:
+                            # others column equals 1
+                            oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 1] = 1.0  
             conn.commit()
         if mode == "old":
             for keyword in lRtgCols:
@@ -263,11 +277,6 @@ def convert():
 
     # train the model
     predict(slctMvID)
-
-
-
-
-
 
 
 def printvars():
