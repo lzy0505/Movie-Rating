@@ -1,6 +1,5 @@
 import sqlite3
 import indices as metrics
-from decimal import *
 import data.timestamp as ts
 
 lFtrCols = ["title","year", "runtimes","giant_cover_url","genres", 'color_info', 'director', 'cast_1st',
@@ -9,10 +8,11 @@ lFtrCols = ["title","year", "runtimes","giant_cover_url","genres", 'color_info',
                'original_music', 'sound_mix', 'production_companies']
 
 lLblCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
-               "real_7", "real_8", "real_9", "real_10","predict_1","predict_2","predict_3", "predict_4", "predict_5", "predict_6",
-                "predict_7", "predict_8", "predict_9", "predict_10"]
+               "real_7", "real_8", "real_9", "real_10","predict_1","predict_2","predict_3", "predict_4", "predict_5",
+            "predict_6","predict_7", "predict_8", "predict_9", "predict_10"]
 
 indexs=['cheby','clark','cbra','k-l','cos','intsc']
+
 
 
 def connect_to_sql():
@@ -45,6 +45,7 @@ def get_instance_basic(mvID):
     rst=cur.fetchone()
     entry.append(rst[0])
     entry.append("https://app.originstamp.org/s/"+ts.sha(rst[1]))
+    cur.close()
     return entry 
 
 
@@ -56,6 +57,7 @@ def select_movie():
     lRst=cur.fetchall()
     for i in lRst:
         lMv.append(get_instance_basic(i[0]))
+    cur.close()
     return lMv
 
 
@@ -105,9 +107,8 @@ def get_instance_details(mvID):
     movie['verify_url']="https://app.originstamp.org/s/"+ts.sha(rst[1])
     movie['sha256']=ts.sha(rst[1])
     movie['metrics']=metrics.cal(rating_[10:20],rating_[0:10])
-
+    cur.close()
     return movie
-
 
 
 if __name__ == '__main__':

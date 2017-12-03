@@ -1,4 +1,3 @@
-import scipy as sp
 import scipy.optimize as spopt
 import numpy as np
 
@@ -26,6 +25,7 @@ def gradient(weights):
 	gdt = trnFtr.transpose().dot((modPbblt - trnLbl))
 	gdt=np.hstack(gdt)
 	return gdt
+
 
 def train(init):
 	(xopt,fopt,others)=spopt.fmin_l_bfgs_b(target,init,gradient,maxiter =400)

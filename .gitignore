@@ -6,5 +6,5 @@
 .elasticbeanstalk/*
 
 
-ve/
+virtualenv/
 data/rating.txt

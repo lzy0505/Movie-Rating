@@ -1,10 +1,8 @@
 import sqlite3
-import scipy as sp
 import numpy as np
 import bfgslld as alg
 import random
 from datetime import date
-import website.indices as idcs
 import timestamp as ts
 
 

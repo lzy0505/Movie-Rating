@@ -1,4 +1,5 @@
-from flask import Flask,render_template,request,url_for,redirect
+# -*- coding:utf-8 -*-
+from flask import Flask,render_template,redirect
 from flask_nav import Nav,register_renderer
 from flask_bootstrap.nav import BootstrapRenderer
 from flask_nav.elements import *
@@ -45,12 +46,12 @@ Bootstrap(application)
 
 @application.route('/')
 def home():
-	return redirect(url_for('preview'))
+    return redirect(url_for('preview'))
 
 @application.route('/preview/')
 def preview():
     movies=database.select_movie()
-    return render_template('index_layout.html',movies=movies)
+    return render_template('index_layout.html', movies=movies)
 
 @application.route('/details/<movieid>/')
 def details(movieid):
