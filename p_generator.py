@@ -1,14 +1,8 @@
 import sqlite3
 import numpy as np
 import bfgslld as alg
-import random
-from datetime import date
-import timestamp as ts
+import predict
 
-
-mode = "old"
-cur = None
-conn = None
 
 lFtrCols = ["year", "runtimes", "genres", 'color_info', 'director', 'cast_1st',
                'cast_2nd', 'cast_3rd', 'countries', 'languages', 'writer',
@@ -16,16 +10,11 @@ lFtrCols = ["year", "runtimes", "genres", 'color_info', 'director', 'cast_1st',
                'original_music', 'sound_mix', 'production_companies']
 lRtgCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
                "real_7", "real_8", "real_9", "real_10"]
-lPtgCols = ["predict_1", "predict_2", "predict_3", "predict_4", "predict_5", "predict_6",
-"predict_7", "predict_8", "predict_9", "predict_10"]
 lRnk = ['Top5','Top50','Top500','Top5000','5000+']
 
 # threshold = [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 7]
 threshold = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-# temporary variables
-lValue = []
-idxCtlg = []
 
 mxYear = 0
 mnYear = 3000
@@ -33,19 +22,10 @@ mxRntms = 0
 mnRntms = 1000
 
 
-def connect_to_sql():
-    global cur, conn
-    try:
-        conn = sqlite3.connect('movie.db')
-        cur = conn.cursor()
-        print '-GENERATE- Connect to database successfully.'
-    except Exception as e:
-        print '-- An {} exception occured.'.format(e)
-
-
-def scan_column():
-    global cur, conn
+def scan_column(cur,conn):
     global mxYear, mnYear, mxRntms, mnRntms
+    idxCtlg =[]
+    lValue=[]
     try:
         index = 0
         for ctlg in lFtrCols:
@@ -114,12 +94,11 @@ def scan_column():
         idxCtlg.append(index)
     except Exception as e:
             print '-SCAN- An {} exception occured'.format(e)
+    return (idxCtlg,lValue)
 
 
-def generate_matrices(mvID):
-    global cur, conn
+def generate_matrices(mvID,cur,conn,idxCtlg,lValue):
     global mxYear, mnYear, mxRntms, mnRntms
-    global mode
     try:
         oneFtr = np.zeros((1, len(lValue)), dtype=np.double)
         oneLbl = np.zeros((1, 10), dtype=np.double)
@@ -165,133 +144,11 @@ def generate_matrices(mvID):
                             # others column equals 1
                             oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 1] = 1.0  
             conn.commit()
-        if mode == "old":
-            for keyword in lRtgCols:
-                cur.execute("SELECT %s FROM rating WHERE id= '%s'" % (keyword, str(mvID)))
-                rst = cur.fetchall()
-                oneLbl[0, lRtgCols.index(keyword)] = float(rst[0][0])
-        # print ' - SCAN_ROW - ID: %s Scan successfully.' % mvID
-        return (oneFtr, oneLbl)
+        for keyword in lRtgCols:
+            cur.execute("SELECT %s FROM rating WHERE id= '%s'" % (keyword, str(mvID)))
+            rst = cur.fetchall()
+            oneLbl[0, lRtgCols.index(keyword)] = float(rst[0][0])
+        # print ' - SCAN_ROW - ID: %s Scan successfully.' % mvID    
     except Exception as e:
         print '-GENERATE_MATRICES- An {} exception occured!'.format(e)
-
-def get_format_info(mvID):
-    s = ""
-    cur.execute("SELECT title,year FROM feature WHERE id=? ",(mvID,))
-    lRst = cur.fetchone()
-    s += (lRst[0]+'-'+str(lRst[1])+'-'+mvID+'|')
-    for col in lPtgCols:
-        cur.execute("SELECT %s FROM rating WHERE id=? " % col,(mvID,))
-        rst = cur.fetchone()
-        s += (col+','+str(rst[0])+'-')
-    s.rstrip("-")
-    return s
-
-def predict(slctMvID):
-    global oTrnFtr,oTrnLbl,oTstFtr
-    strDate = date.today().isoformat()
-    print "-ALGORITHM- Training model..."
-    oPdctLbl=alg.run(oTrnFtr,oTrnLbl,oTstFtr)
-    print "-PREDICTION- Recording results..."
-    for i in xrange(oPdctLbl.shape[0]):
-        for j in xrange(oPdctLbl.shape[1]):
-            cur.execute('UPDATE rating SET %s = ? WHERE id = ?'%lPtgCols[j],(oPdctLbl[i][j],slctMvID[i]))
-        cur.execute('UPDATE feature SET type = "predicted" WHERE id = %s'%(slctMvID[i]))
-        txtPrdct = get_format_info(slctMvID[i])+"|"+strDate
-        cur.execute('UPDATE rating SET predict_time = ?,predict_text= ? WHERE id = %s' % (slctMvID[i]),(strDate,txtPrdct))
-        (created,completed) = ts.stamp(txtPrdct)
-        if created == False:
-            print "-TIMESTAMP- Something wrong happened!"
-    conn.commit()
-
-def convert():
-    global oTrnFtr,oTrnLbl,oTstFtr
-    # record the mvid of selected instance
-    slctMvID = []
-    if mode == "new":
-        # train set & test set
-        oTrnFtr = None
-        oTrnLbl = None
-        oTstFtr = None
-
-        # generate train set
-        cur.execute('SELECT id FROM feature WHERE type = "old"')
-        rstID = cur.fetchall()
-        for mvID in rstID:
-            (oneFtr, oneLbl) = generate_matrices(mvID[0])
-            if oTrnFtr is None:
-                oTrnFtr = oneFtr
-                oTrnLbl = oneLbl
-            else:
-                oTrnFtr = np.concatenate((oTrnFtr, oneFtr))
-                oTrnLbl = np.concatenate((oTrnLbl, oneLbl))
-
-        # generate test set
-        cur.execute('SELECT id FROM feature WHERE type = "new"')
-        rstID = cur.fetchall()
-        for mvID in rstID:
-            slctMvID.append(mvID[0])
-            (oneFtr, oneLbl) = generate_matrices(mvID[0])
-            if oTstFtr is None:
-                oTstFtr = oneFtr
-            else:
-                oTstFtr = np.concatenate((oTrnFtr, oneFtr))
-
-    elif mode == "old":
-
-        cur.execute('SELECT id FROM feature WHERE type = "old"')
-        rstID = cur.fetchall()
-        # randomly select 1/numPrtn of instances
-        numPrtn = 10
-
-        # train set & test set
-        oTrnFtr = None
-        oTrnLbl = None
-        oTstFtr = None
-        oTstLbl = None 
-
-        # generate random number
-        for i in xrange(0, int(len(rstID)/numPrtn)):
-            r = random.randint(0, len(rstID))
-            while rstID[r][0] in slctMvID:
-                r = random.randint(0, len(rstID))
-            slctMvID.append(rstID[r][0])
-        
-        # generate train set & test set
-        for mvID in rstID:
-            (oneFtr, oneLbl) = generate_matrices(mvID[0])
-            if mvID[0] in slctMvID:   
-                if oTstFtr is None:
-                    oTstFtr = oneFtr
-                    oTstLbl = oneLbl
-                else:
-                    oTstFtr = np.concatenate((oTstFtr, oneFtr))
-                    oTstLbl = np.concatenate((oTstLbl, oneLbl))
-            else:
-                if oTrnFtr is None:
-                    oTrnFtr = oneFtr
-                    oTrnLbl = oneLbl
-                else:
-                    oTrnFtr = np.concatenate((oTrnFtr, oneFtr))
-                    oTrnLbl = np.concatenate((oTrnLbl, oneLbl))
-
-    # train the model
-    predict(slctMvID)
-
-
-def printvars():
-    global oTrnFtr,oTrnLbl,oTstFtr
-    print len(lValue)
-    print idxCtlg
-    print oTrnFtr.shape
-    print oTrnLbl.shape
-    print oTstFtr.shape
-
-
-if __name__ == '__main__':
-    connect_to_sql()
-    scan_column()
-    convert()
-    printvars()
-    conn.close()
-    print 'Done generating matrices from database!'
+    return (oneFtr, oneLbl)

@@ -1,12 +1,22 @@
 import requests
 import time
 import sqlite3
-
 from Queue import Queue
 from bs4 import BeautifulSoup
 from imdb import imdb
 from movie import Movie
 from threading import Thread
+
+# the time range where we search for movies
+begin_year = 2015
+end_year = 2015
+begin_month = 7
+end_month = 9
+
+# train or test
+mode = 'test'
+
+
 
 # We use multi-thread to crawl the data
 thread_number = 9
@@ -18,14 +28,6 @@ imdb_access = imdb.IMDb()
 # the multi-processor queue of movie IDs
 mvIDQ = Queue(maxsize=500)
 mvINQ = Queue(maxsize=100)
-
-# the time range where we search for movies
-begin_year = 2016
-end_year = 2016
-begin_month = 1
-end_month = 6
-# the mode indicate that whether get rating of movies
-mode = "old"
 
 stage = 0
 
@@ -217,12 +219,7 @@ def get_info():
                     mvOJ.runtimes = 0
             else:
                 mvOJ.runtimes = 0
-            # budget int      
-            # if 'budget' in mvIN:
-            #     mvOJ.budget = mvIN.get('budget')
-            # get rating for old movies
-            if mode == "old":  
-                mvOJ.number_of_votes = get_rating(mvID)
+            mvOJ.number_of_votes = get_rating(mvID)
             mvINQ.put(mvOJ)
             mvIDQ.task_done()
             # print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
@@ -273,66 +270,47 @@ def store_movies():
                     mvIN.production_companies,
                     mvIN.year,
                     mvIN.runtimes))
-            if mode == 'old':
-                ssum = 0.0
-                rating = []
-                for n in mvIN.number_of_votes:
-                    ssum += n
-                    rating.append(n)
-                for i in xrange(0, len(rating)):
-                    rating[i] = rating[i]/ssum
+            ssum = 0.0
+            rating = []
+            for n in mvIN.number_of_votes:
+                ssum += n
+                rating.append(n)
+            for i in xrange(0, len(rating)):
+                rating[i] = rating[i]/ssum
 
-                cur.execute(
-                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (mvIN.id, 
-                        rating[0],
-                        rating[1],
-                        rating[2],
-                        rating[3],
-                        rating[4],
-                        rating[5],
-                        rating[6],
-                        rating[7],
-                        rating[8],
-                        rating[9],
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL"))
-            else:
-                cur.execute(
-                    "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (mvIN.id,
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL",
-                        "NULL"))
+            cur.execute(
+                "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (mvIN.id, 
+                    rating[0],
+                    rating[1],
+                    rating[2],
+                    rating[3],
+                    rating[4],
+                    rating[5],
+                    rating[6],
+                    rating[7],
+                    rating[8],
+                    rating[9],
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL",
+                    "NULL"))
             print '-CRAWLER- Store moive(ID: %s) successfully.(Remain %d)' % (mvIN.id,mvIDQ.qsize()+mvINQ.qsize())
             conn.commit()
             mvINQ.task_done()
