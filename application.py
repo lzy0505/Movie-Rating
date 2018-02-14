@@ -13,25 +13,25 @@ import database
 # indices=['cheby','clark','cbra','k-l','cos','intsc']
 
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 
 
-@app.route('/')
+@application.route('/')
 def home():
     etrs=database.perfect_prediction()
     return render_template('index.html',entries=etrs)
 
-@app.route('/about/')
+@application.route('/about/')
 def about():
     return render_template('about.html')
 
-@app.route('/list/')
+@application.route('/list/')
 def mlist():
     etrs=database.select_movie()
     return render_template('ratinglist.html',entries=etrs)
 
-@app.route('/<movieid>/')
+@application.route('/<movieid>/')
 def entries(movieid):
     etry=database.get_instance_details(movieid)
     print (etry)
@@ -44,4 +44,4 @@ def entries(movieid):
 
 
 if __name__ == '__main__':
-   	app.run()
+   	application.run()
