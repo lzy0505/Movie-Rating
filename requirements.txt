@@ -1,0 +1,5 @@
+Flask
+IMDbPY
+requests
+numpy
+scipy

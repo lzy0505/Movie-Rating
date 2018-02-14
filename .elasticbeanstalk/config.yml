@@ -1,6 +1,7 @@
 branch-defaults:
   python3:
     environment: Movie-Rating-dev
+    group_suffix: null
 global:
   application_name: Movie-Rating
   branch: null
