@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+	
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1">
+		
+		<title>Movie Review | Single</title>
+
+		<!-- Loading third party fonts -->
+		<link href="http://fonts.googleapis.com/css?family=Roboto:300,400,700|" rel="stylesheet" type="text/css">
+		<link href="{{url_for('.static', filename='fonts/font-awesome.min.css')}}" rel="stylesheet" type="text/css">
+
+		<!-- Loading main css file -->
+		<link rel="stylesheet" href="{{url_for('.static', filename='style.css')}}">
+		
+		<!--[if lt IE 9]>
+		<script src="js/ie-support/html5.js"></script>
+		<script src="js/ie-support/respond.js"></script>
+		<![endif]-->
+		<link rel="icon" href="{{url_for('.static', filename='images/favicon.ico')}}" />
+	</head>
+
+
+	<body>
+		
+		<script src="{{url_for('.static', filename='js/highcharts.js') }}"></script>
+		<script src="{{url_for('.static', filename='js/series-label.js') }}"></script>
+		<div id="site-content">
+			<header class="site-header">
+				<div class="container">
+					<a href="{{url_for('home')}}" id="branding">
+						<img src="{{url_for('.static', filename='images/logo.png')}}" alt="" class="logo">
+						<div class="logo-copy">
+								<h1 class="site-title">Movie Rating Project</h1>
+								<small class="site-description">Represent the prediction of movie rating.</small>
+						</div>
+					</a> <!-- #branding -->
+
+					<div class="main-navigation">
+						<button type="button" class="menu-toggle"><i class="fa fa-bars"></i></button>
+						<ul class="menu">
+								<li class="menu-item"><a href="{{url_for('home')}}">Home</a></li>
+								<li class="menu-item current-menu-item"><a href="{{url_for('mlist')}}">List</a></li>
+								<li class="menu-item"><a href="{{url_for('about')}}">About</a></li>
+						</ul> <!-- .menu -->
+
+						<form action="#" class="search-form">
+							<input type="text" placeholder="Search...">
+							<button><i class="fa fa-search"></i></button>
+						</form>
+						</form>
+					</div> <!-- .main-navigation -->
+
+					<div class="mobile-navigation"></div>
+				</div>
+			</header>
+			<main class="main-content">
+				<div class="container">
+					<div class="page">
+
+						<div class="content">
+							<div class="row">
+								<div class="col-md-6">
+									<figure class="movie-poster"><center><img src="{{entry[4]}}" alt="#"></center></figure>
+								</div>
+								<div class="col-md-6">
+									<h2 class="movie-title">{{entry[1][0]}}</h2>
+									<ul class="movie-meta">
+										<!-- <li><strong>Rating:</strong> 
+											<div class="star-rating" title="Rated 4.00 out of 5"><span style="width:80%"><strong class="rating">4.00</strong> out of 5</span></div>
+										</li> -->
+										<li><strong>Length:</strong> {{entry[3]}} min</li>
+										<li><strong>Premiere:</strong> {{entry[2]}} ({%for item in entry[11] %}
+											{{item}}, 
+										{% endfor %})</li>
+										<li><strong>Genres:</strong> {%for item in entry[5] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Color:</strong> {%for item in entry[6] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Languages:</strong> {%for item in entry[12] %}
+											{{item}}, 
+										{% endfor %}</li>
+									</ul>
+									<ul class="starring">
+										<li><strong>Directors:</strong> {%for item in entry[7] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Writers:</strong> {%for item in entry[13] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Stars:</strong> {{entry[8][0]}}, {{entry[9][0]}}, {{entry[10][0]}}</li>
+										<li><strong>Editors:</strong> {%for item in entry[14] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Cinematographers:</strong> {%for item in entry[15] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Art Directiors:</strong> {%for item in entry[16] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Costume Designer:</strong> {%for item in entry[17] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Original Music:</strong> {%for item in entry[18] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Sound Mix:</strong> {%for item in entry[19] %}
+											{{item}}, 
+										{% endfor %}</li>
+										<li><strong>Production Companies:</strong> {%for item in entry[20] %}
+											{{item}}, 
+										{% endfor %}</li>
+									</ul>
+								</div>
+							</div> <!-- .row -->
+							<div class="entry-content">
+									<div id="container"></div>
+									<script type="text/javascript">
+										Highcharts.chart('container', {
+											chart: {
+												type: 'line'
+											},
+											title: {
+												text: 'Rating Distribution Comparison'
+											},
+											legend: {
+												layout: 'vertical',
+												align: 'right',
+												verticalAlign: 'middle'
+											},
+											plotOptions: {
+												series: {
+													label: {
+														connectorAllowed: false
+													},
+													enableMouseTracking: true,
+													pointStart: 1
+												}
+											},
+											yAxis: {
+												title: {
+													text: 'Percentage(%)'
+												}
+											},
+											series: [{
+												name: 'Predicted Distribution',
+												color: '#4D4DFF',
+												data: [{% for rating in entry[0] %}{{rating}}{% if loop.index ==10%}
+															]
+															},{
+																name: 'Real Distribution',
+																color:'#000000',
+																data: [
+															{% elif loop.index == 20 %}]}{% else%},{% endif %}
+														{% endfor %}],
+											responsive: {
+												rules: [{
+													condition: {
+														maxWidth: 800
+													},
+													chartOptions: {
+														legend: {
+															layout: 'horizontal',
+															align: 'center',
+															verticalAlign: 'bottom'
+														}
+													}
+												}]
+											}
+										});
+									</script>
+							</div>
+						</div>
+					</div>
+				</div> <!-- .container -->
+			</main>
+			<footer class="site-footer">
+				<div class="container">
+					<div class="colophon">Designed by Themezy</div>
+				</div> <!-- .container -->
+
+			</footer>
+		</div>
+		<!-- Default snippet for navigation -->
+		
+
+
+		<script src="{{url_for('.static', filename='js/jquery-1.11.1.min.js')}}"></script>
+		<script src="{{url_for('.static', filename='js/plugins.js')}}"></script>
+		<script src="{{url_for('.static', filename='js/app.js')}}"></script>
+		
+	</body>
+
+</html>
