@@ -9,9 +9,9 @@ def create_table():
 
     # delete all table in database
     cDB.execute("DROP TABLE feature")
-    print "-INIT- Table feature has been deleted."
+    print ("-INIT- Table feature has been deleted.")
     cDB.execute("DROP TABLE rating")
-    print "-INIT- Table rating has been deleted."
+    print ("-INIT- Table rating has been deleted.")
 
     # create info table
     cDB.execute("CREATE TABLE feature (\n"
@@ -22,27 +22,27 @@ def create_table():
     + "giant_cover_url TEXT NOT NULL,\n"
     + "genres TEXT NOT NULL,\n"
     + "color_info TEXT DEFAULT NULL,\n"
-    + "director TEXT NOT NULL,\n"
     + "cast_1st TEXT NOT NULL,\n"
-    + "cast_1st_rank TEXT NOT NULL,\n"
+    + "cast_1st_rank INTEGER NOT NULL,\n"
     + "cast_2nd TEXT DEFAULT NULL,\n"
-    + "cast_2nd_rank TEXT DEFAULT NULL,\n"
+    + "cast_2nd_rank INTEGER DEFAULT NULL,\n"
     + "cast_3rd TEXT DEFAULT NULL,\n"
-    + "cast_3rd_rank TEXT DEFAULT NULL,\n"
+    + "cast_3rd_rank INTEGER DEFAULT NULL,\n"
     + "countries TEXT NOT NULL,\n"
     + "languages TEXT NOT NULL,\n"
+    + "director TEXT NOT NULL,\n"
     + "writer TEXT DEFAULT NULL,\n"
-    + "editor TEXT DEFAULT NULL,\n"
+    + "producer TEXT DEFAULT NULL,\n"
+    + "composers TEXT DEFAULT NULL,\n"
     + "cinematographer TEXT DEFAULT NULL,\n"
+    + "editor TEXT DEFAULT NULL,\n"
     + "art_director TEXT DEFAULT NULL,\n"
     + "costume_designer TEXT DEFAULT NULL,\n"
-    + "original_music TEXT DEFAULT NULL,\n"
-    + "sound_mix TEXT DEFAULT NULL,\n"
     + "production_companies TEXT NOT NULL,\n"
     + "year INTEGER NOT NULL,\n"
     + "runtimes INTEGER NOT NULL"
     + ")")
-    print "-INIT- Table feature has been created."
+    print ("-INIT- Table feature has been created.")
 
     cDB.execute("CREATE TABLE rating("
     + "id TEXT PRIMARY KEY NOT NULL,\n"
@@ -77,13 +77,13 @@ def create_table():
     + "p_predict_9 REAL DEFAULT NULL,\n"
     + "p_predict_10 REAL DEFAULT NULL"
     + ")")
-    print "-INIT- Table rating has been created."
+    print ("-INIT- Table rating has been created.")
 
     # save change
     DB.commit()
     # disconnect to database
     DB.close()
-    print "-INIT- Database initalization is successful."
+    print ("-INIT- Database initalization is successful.")
 
 
 if __name__ == '__main__':

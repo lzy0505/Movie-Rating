@@ -1,6 +1,7 @@
 *.pyc
 *.mat
 *.log
+*.csv
 # Elastic Beanstalk Files
 
 .elasticbeanstalk/*
@@ -8,4 +9,4 @@
 
 virtualenv/
 .vscode/
-data/rating.txt
+
