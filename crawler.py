@@ -7,10 +7,10 @@ from movie import Movie
 from threading import Thread
 
 # the time range where we search for movies
-begin_year = 2015
-end_year = 2015
-begin_month = 7
-end_month = 8
+begin_year = 2017
+end_year = 2018
+begin_month = 8
+end_month = 1
 
 # train or test
 mode = 'test'
@@ -18,7 +18,7 @@ mode = 'test'
 
 
 # We use multi-thread to crawl the data
-thread_number = 9
+thread_number = 5
 
 # Below are variables associated with IMDB data
 imdb_new_movie_url = 'http://www.imdb.com/movies-coming-soon/'
@@ -193,7 +193,7 @@ def get_info():
             # print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
         except Exception as e:
             print ('-CRAWLER- An {} exception occured!'.format(e), mvID)
-            mvINQ.put(mvID)
+            mvIDQ.put(mvID)
         time.sleep(1)
     stage = 2
     print ("Done!")
@@ -249,8 +249,9 @@ def store_movies():
                 rating[i] = rating[i]/ssum
 
             cur.execute(
-                "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (mvIN.id, 
+                "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (mvIN.id,
+                 "NULL",
                     rating[0],
                     rating[1],
                     rating[2],

@@ -29,7 +29,7 @@ def gradient(weights):
 
 def train(init):
 	(xopt,fopt,others)=spopt.fmin_l_bfgs_b(target,init,gradient,maxiter =400)
-	print "Gradient:%s\nwarnflag:%d" % (others['grad'],others['warnflag'])
+	print ("Gradient:%s\nwarnflag:%d" % (others['grad'],others['warnflag']))
 	return (xopt,fopt)
 
 def predict(weights, x):
@@ -50,9 +50,9 @@ def run(trnF,trnL,*tstF):
 	item = np.eye(trnFtr.shape[1],trnLbl.shape[1])
 	# print item.shape
 	(weights,fval)=train(item)
-	print "Finished training"	
+	print ("Finished training")	
 	if len(tstF)==1:
 		tstFtr = tstF[0]
 		pdctLbl=predict(weights,tstFtr)
-		print "Finished prediction"
+		print ("Finished prediction")
 		return pdctLbl

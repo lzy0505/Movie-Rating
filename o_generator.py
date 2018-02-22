@@ -1,16 +1,13 @@
 import sqlite3
 import numpy as np
-import bfgslld as alg
-import predict
 
 
-lFtrCols = ["year", "runtimes", "genres", 'color_info', 'director', 'cast_1st',
-               'cast_2nd', 'cast_3rd', 'countries', 'languages', 'writer',
-               'editor', 'cinematographer', 'art_director', 'costume_designer',
-               'original_music', 'sound_mix', 'production_companies']
+lFtrCols = ["year", "runtimes","genres", 'color_info', 'cast_1st','cast_2nd', 'cast_3rd', 
+                'countries', 'languages', 'director' ,'writer',"producer",
+               'composers', 'cinematographer', 'editor', 'art_director', 
+               'costume_designer', 'production_companies']
 lRtgCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
                "real_7", "real_8", "real_9", "real_10"]
-lRnk = ['Top5','Top50','Top500','Top5000','5000+']
 
 # threshold = [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 7]
 threshold = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -33,10 +30,10 @@ def scan_column(cur,conn):
             command = "SELECT %s FROM feature" % ctlg
             #  print "executing %s..." % command
             cur.execute(command)
-            print "-GENERATE- Scanning %s..." % ctlg
+            print ("-GENERATE- Scanning %s..." % ctlg)
             result = cur.fetchall()
             # get the max& min value of year and runtimes by iteration
-            if ctlg == 'year' or ctlg == 'runtimes':
+            if ctlg in ['year','runtimes']:
                 nullflag = False
                 for instance in result:
                     if instance[0] == 0:
@@ -56,7 +53,7 @@ def scan_column(cur,conn):
                 lValue.append(ctlg)
                 index += 1
                 if nullflag:
-                    lValue.append("Null_" + ctlg)
+                    lValue.append("NULL_" + ctlg)
                     index += 1
             else:
                 # a dict to count number of each value
@@ -64,7 +61,7 @@ def scan_column(cur,conn):
                 # whether has null string in this catalog
                 nullflag = False
                 for instance in result:
-                    if instance[0] == '':
+                    if instance[0] == 'NULL':
                         nullflag = True
                     for i in instance[0].split('$'):
                         # if no such key in dict
@@ -80,15 +77,17 @@ def scan_column(cur,conn):
                         lValue.append(key)
                         index += 1
                 if nullflag:
-                    lValue.append('Null_%s' % ctlg)
+                    lValue.append('NULL_%s' % ctlg)
                     index += 1
+                if threshold[lFtrCols.index(ctlg)] == 0:
+                    continue
                 lValue.append('Others_%s' % ctlg)
                 index += 1
             conn.commit()
             # print '-SCAN- Catalog %s scan successfully.' % ctlg
         idxCtlg.append(index)
     except Exception as e:
-            print '-SCAN- An {} exception occured'.format(e)
+            print ('-SCAN- An {} exception occured'.format(e))
     return (idxCtlg,lValue)
 
 def generate_matrices(mvID,cur,conn,idxCtlg,lValue):
@@ -98,43 +97,41 @@ def generate_matrices(mvID,cur,conn,idxCtlg,lValue):
         oneLbl = np.zeros((1, 10), dtype=np.double)
         for ctlg in lFtrCols:
             cur.execute("SELECT %s FROM feature WHERE id= '%s'" % (ctlg, str(mvID)))
-            rst = cur.fetchall()
-            for i in xrange(idxCtlg[lFtrCols.index(ctlg)], idxCtlg[lFtrCols.index(ctlg)+1]):
-                if ctlg == "year" or ctlg == "runtimes":
-                    if int(rst[0][0]) == 0:
-                        oneFtr[0, i] = 0.0
-                        oneFtr[0, idxCtlg[lFtrCols.index(ctlg)+1] - 1] = 1.0
-                    else:
-                        if ((idxCtlg[lFtrCols.index(ctlg)+1] - 1) == i) and (idxCtlg[lFtrCols.index(ctlg)+1] - 1 - idxCtlg[lFtrCols.index(ctlg)]) > 0:
-                            continue
-                        if ctlg == "year":
-                            var = (float(rst[0][0]) - mnYear) / (mxYear - mnYear)
-                        else:
-                            var = (float(rst[0][0]) - mnRntms) / (mxRntms - mnRntms)
-                        oneFtr[0, i] = var
+            rst = cur.fetchone()
+            if ctlg == "year" or ctlg == "runtimes":
+                if int(rst[0]) == 0: # NULL
+                    oneFtr[0, i] = 0.0
+                    oneFtr[0, idxCtlg[lFtrCols.index(ctlg)+1] - 1] = 1.0
                 else:
-                    otrs = 0.0
-                    inc = 1.0/(idxCtlg[lFtrCols.index(ctlg)+1] - idxCtlg[lFtrCols.index(ctlg)] - 1)
-                    if rst[0][0] == '':
-                        # null column equals 1
-                        oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 2] = 1.0
-                        continue
+                    if ctlg == "year":
+                        var = (float(rst[0]) - mnYear) / (mxYear - mnYear)
                     else:
-                        r=0.0
-                        for value in rst[0][0].split('$'): 
+                        var = (float(rst[0]) - mnRntms) / (mxRntms - mnRntms)
+                    oneFtr[0, idxCtlg[lFtrCols.index(ctlg)]] = var
+            else:
+                if rst[0] == 'NULL':
+                    # null column equals 1
+                    if threshold[lFtrCols.index(ctlg)] == 0: #has no others column
+                        oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 1] = 1.0
+                    else:
+                        oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 2] = 1.0
+                    continue
+                else:
+                    counter = 0
+                    for value in rst[0].split('$'):
+                        for i in range(idxCtlg[lFtrCols.index(ctlg)], idxCtlg[lFtrCols.index(ctlg)+1]):
                             if lValue[i] == value:
-                                r = 1.0
-                            else:
-                                otrs += inc
-                        oneFtr[0, i] = r
-                    # others column equals 1
-                    oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 1] = otrs  
+                                oneFtr[0, i]=1.0
+                                counter += 1
+                                break
+                    if len(rst[0].split('$'))>counter: # others = 1.0
+                        oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 1]=1.0
             conn.commit()
         for keyword in lRtgCols:
             cur.execute("SELECT %s FROM rating WHERE id= '%s'" % (keyword, str(mvID)))
-            rst = cur.fetchall()
-            oneLbl[0, lRtgCols.index(keyword)] = float(rst[0][0])
+            rst = cur.fetchone()
+            oneLbl[0, lRtgCols.index(keyword)] = float(rst[0])
         # print ' - SCAN_ROW - ID: %s Scan successfully.' % mvID
     except Exception as e:
-        print '-GENERATE_MATRICES- An {} exception occured!'.format(e)
+        print ('-GENERATE_MATRICES- An {} exception occured!'.format(e))
     return (oneFtr, oneLbl)

@@ -46,6 +46,7 @@ def create_table():
 
     cDB.execute("CREATE TABLE rating("
     + "id TEXT PRIMARY KEY NOT NULL,\n"
+    + "metric REAL DEFAULT NULL,\n"
     + "real_1 REAL DEFAULT NULL,\n"
     + "real_2 REAL DEFAULT NULL,\n"
     + "real_3 REAL DEFAULT NULL,\n"
