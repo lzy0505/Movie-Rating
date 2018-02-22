@@ -6,7 +6,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1">
 		
-		<title>Movie Review | Single</title>
+		<title>Movie Details</title>
 
 		<!-- Loading third party fonts -->
 		<link href="http://fonts.googleapis.com/css?family=Roboto:300,400,700|" rel="stylesheet" type="text/css">
@@ -72,7 +72,7 @@
 											<div class="star-rating" title="Rated 4.00 out of 5"><span style="width:80%"><strong class="rating">4.00</strong> out of 5</span></div>
 										</li> -->
 										<li><strong>Length:</strong> {{entry[3]}} min</li>
-										<li><strong>Premiere:</strong> {{entry[2]}} ({%for item in entry[11] %}
+										<li><strong>Premiere:</strong> {{entry[2]}} ({%for item in entry[10] %}
 											{{item}}, 
 										{% endfor %})</li>
 										<li><strong>Genres:</strong> {%for item in entry[5] %}
@@ -81,34 +81,34 @@
 										<li><strong>Color:</strong> {%for item in entry[6] %}
 											{{item}}, 
 										{% endfor %}</li>
-										<li><strong>Languages:</strong> {%for item in entry[12] %}
+										<li><strong>Languages:</strong> {%for item in entry[11] %}
 											{{item}}, 
 										{% endfor %}</li>
 									</ul>
 									<ul class="starring">
-										<li><strong>Directors:</strong> {%for item in entry[7] %}
+										<li><strong>Directors:</strong> {%for item in entry[12] %}
 											{{item}}, 
 										{% endfor %}</li>
 										<li><strong>Writers:</strong> {%for item in entry[13] %}
 											{{item}}, 
 										{% endfor %}</li>
-										<li><strong>Stars:</strong> {{entry[8][0]}}, {{entry[9][0]}}, {{entry[10][0]}}</li>
-										<li><strong>Editors:</strong> {%for item in entry[14] %}
+										<li><strong>Stars:</strong> {{entry[7][0]}}, {{entry[8][0]}}, {{entry[9][0]}}</li>
+										<li><strong>Producers:</strong> {%for item in entry[14] %}
 											{{item}}, 
 										{% endfor %}</li>
-										<li><strong>Cinematographers:</strong> {%for item in entry[15] %}
+										<li><strong>Composers:</strong> {%for item in entry[15] %}
 											{{item}}, 
 										{% endfor %}</li>
-										<li><strong>Art Directiors:</strong> {%for item in entry[16] %}
+										<li><strong>Editors:</strong> {%for item in entry[16] %}
 											{{item}}, 
 										{% endfor %}</li>
-										<li><strong>Costume Designer:</strong> {%for item in entry[17] %}
+										<li><strong>Art Directiors:</strong> {%for item in entry[17] %}
 											{{item}}, 
 										{% endfor %}</li>
-										<li><strong>Original Music:</strong> {%for item in entry[18] %}
+										<li><strong>Cinematographers:</strong> {%for item in entry[18] %}
 											{{item}}, 
 										{% endfor %}</li>
-										<li><strong>Sound Mix:</strong> {%for item in entry[19] %}
+										<li><strong>Costume Designer:</strong> {%for item in entry[19] %}
 											{{item}}, 
 										{% endfor %}</li>
 										<li><strong>Production Companies:</strong> {%for item in entry[20] %}

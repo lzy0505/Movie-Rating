@@ -34,7 +34,6 @@ def mlist():
 @application.route('/<movieid>/')
 def entries(movieid):
     etry=database.get_instance_details(movieid)
-    print (etry)
     return render_template('single.html',entry=etry)
 
 # @app.route('/details/<movieid>/')

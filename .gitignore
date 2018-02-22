@@ -12,3 +12,4 @@
 
 !.elasticbeanstalk/*.global.yml
 
+rootkey.csv

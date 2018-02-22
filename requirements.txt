@@ -3,3 +3,4 @@ IMDbPY
 requests
 numpy
 scipy
+pymysql
