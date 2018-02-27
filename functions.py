@@ -39,6 +39,8 @@ def k_l(pre,real):
     for i in range(10):
         if real[i]==0:
             real[i]=0.0000000000001
+        elif pre[i]==0:
+            continue
         sum+=(pre[i]*math.log(pre[i]/real[i]))
     return sum
 

@@ -2,6 +2,7 @@
 import sqlite3
 import requests
 from bs4 import BeautifulSoup
+import numpy as np
 
 def func(mvID):
     url = 'http://www.imdb.com/title/tt%s/reference' % mvID
@@ -23,9 +24,11 @@ def func(mvID):
     print('full-size cover url: %s' % giant_cover_url)
     for keyword in crews:   
         lists=[]
-        for item in soup.body.find(id=keyword).parent.parent.next_sibling.next_sibling.find_all(class_='name'):
-            lists.append(item.a.string)
+        if soup.body.find(id=keyword) is not None:
+            for item in soup.body.find(id=keyword).parent.parent.next_sibling.next_sibling.find_all(class_='name'):
+                lists.append(item.a.string)
         print('%s: %s' % (keyword,lists))
+
     lists=[]
     for item in soup.body.find(class_='cast_list').find_all(itemprop="actor"):
         actor=[]
@@ -66,5 +69,14 @@ def func(mvID):
 # https://images-na.ssl-images-amazon.com/images/M/
 # MV5BMjI0NzU4MjkxNl5BMl5BanBnXkFtZTgwMTYxMTA1NzE@._V1_SY150_CR0,0,101,150_.jpg
 
+def replace():
+    sql= 'UPDATE `data` SET `o_predict_1`=%f, `o_predict_2`=%f, `o_predict_3`=%f, `o_predict_4`=%f, `o_predict_5`=%f, `o_predict_6`=%f, `o_predict_7`=%f, `o_predict_8`=%f, `o_predict_9`=%f, `o_predict_10`=%f WHERE id = %s;'
+    oneLbl = np.zeros((1, 10), dtype=np.double)
+    for i in range(10):     
+        oneLbl[0][i]=float(i)/10.0
+    print(sql % (oneLbl[0][0],oneLbl[0][1],oneLbl[0][2],oneLbl[0][3],oneLbl[0][4],oneLbl[0][5],oneLbl[0][6],oneLbl[0][7],oneLbl[0][8],oneLbl[0][9],'0027478'))
+
+
 if __name__ == '__main__':
-    func("3103166")
+    # func("6303866")
+    replace()

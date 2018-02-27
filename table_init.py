@@ -1,89 +1,128 @@
-import sqlite3
+import pymysql
 
 
 def create_table():
     # connect to database
-    DB = sqlite3.connect('movie.db')
+    connection = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
+                            user='admin',
+                            password='********',
+                            database='movierating',
+                            port=3306,
+                            charset='utf8mb4',
+                            cursorclass=pymysql.cursors.DictCursor)
     # cursor of database
-    cDB = DB.cursor()
+    with connection.cursor() as cursor:
 
-    # delete all table in database
-    cDB.execute("DROP TABLE feature")
-    print ("-INIT- Table feature has been deleted.")
-    cDB.execute("DROP TABLE rating")
-    print ("-INIT- Table rating has been deleted.")
+        # delete all table in database
+        cursor.execute("DROP TABLE `data`")
+        print ("-INIT- Table data has been deleted.")
+        # cursor.execute("DROP TABLE `rating`")
+        # print ("-INIT- Table rating has been deleted.")
 
-    # create info table
-    cDB.execute("CREATE TABLE feature (\n"
-    + "for TEXT  NOT NULL,\n"
-    + "id TEXT PRIMARY KEY NOT NULL,\n"
-    + "title TEXT NOT NULL,\n"
-    + "cover_url TEXT NOT NULL,\n"
-    + "giant_cover_url TEXT NOT NULL,\n"
-    + "genres TEXT NOT NULL,\n"
-    + "color_info TEXT DEFAULT NULL,\n"
-    + "cast_1st TEXT NOT NULL,\n"
-    + "cast_1st_rank INTEGER NOT NULL,\n"
-    + "cast_2nd TEXT DEFAULT NULL,\n"
-    + "cast_2nd_rank INTEGER DEFAULT NULL,\n"
-    + "cast_3rd TEXT DEFAULT NULL,\n"
-    + "cast_3rd_rank INTEGER DEFAULT NULL,\n"
-    + "countries TEXT NOT NULL,\n"
-    + "languages TEXT NOT NULL,\n"
-    + "director TEXT NOT NULL,\n"
-    + "writer TEXT DEFAULT NULL,\n"
-    + "producer TEXT DEFAULT NULL,\n"
-    + "composers TEXT DEFAULT NULL,\n"
-    + "cinematographer TEXT DEFAULT NULL,\n"
-    + "editor TEXT DEFAULT NULL,\n"
-    + "art_director TEXT DEFAULT NULL,\n"
-    + "costume_designer TEXT DEFAULT NULL,\n"
-    + "production_companies TEXT NOT NULL,\n"
-    + "year INTEGER NOT NULL,\n"
-    + "runtimes INTEGER NOT NULL"
-    + ")")
-    print ("-INIT- Table feature has been created.")
+        # create info table
+        cursor.execute("CREATE TABLE `data` ("
+        + "`for` TEXT NOT NULL,"
+        + "`id` VARCHAR(7) NOT NULL,"
+        + "`title` TEXT NOT NULL,"
+        + "`cover_url` TEXT NOT NULL,"
+        + "`giant_cover_url` TEXT NOT NULL,"
+        + "`genres` TEXT NOT NULL,"
+        + "`color_info` TEXT DEFAULT NULL,"
+        + "`cast_1st` TEXT NOT NULL,"
+        + "`cast_1st_rank` INTEGER NOT NULL,"
+        + "`cast_2nd` TEXT DEFAULT NULL,"
+        + "`cast_2nd_rank` INTEGER DEFAULT NULL,"
+        + "`cast_3rd` TEXT DEFAULT NULL,"
+        + "`cast_3rd_rank` INTEGER DEFAULT NULL,"
+        + "`countries` TEXT NOT NULL,"
+        + "`languages` TEXT NOT NULL,"
+        + "`director` TEXT NOT NULL,"
+        + "`writer` TEXT DEFAULT NULL,"
+        + "`producer` TEXT DEFAULT NULL,"
+        + "`composers` TEXT DEFAULT NULL,"
+        + "`cinematographer` TEXT DEFAULT NULL,"
+        + "`editor` TEXT DEFAULT NULL,"
+        + "`art_director` TEXT DEFAULT NULL,"
+        + "`costume_designer` TEXT DEFAULT NULL,"
+        + "`production_companies` TEXT NOT NULL,"
+        + "`year` SMALLINT NOT NULL,"
+        + "`runtimes` SMALLINT NOT NULL,"
+        + "`metric` REAL DEFAULT NULL,"
+        + "`real_1` REAL DEFAULT NULL,"
+        + "`real_2` REAL DEFAULT NULL,"
+        + "`real_3` REAL DEFAULT NULL,"
+        + "`real_4` REAL DEFAULT NULL,"
+        + "`real_5` REAL DEFAULT NULL,"
+        + "`real_6` REAL DEFAULT NULL,"
+        + "`real_7` REAL DEFAULT NULL,"
+        + "`real_8` REAL DEFAULT NULL,"
+        + "`real_9` REAL DEFAULT NULL,"
+        + "`real_10` REAL DEFAULT NULL,"
+        + "`o_predict_1` REAL DEFAULT NULL,"
+        + "`o_predict_2` REAL DEFAULT NULL,"
+        + "`o_predict_3` REAL DEFAULT NULL,"
+        + "`o_predict_4` REAL DEFAULT NULL,"
+        + "`o_predict_5` REAL DEFAULT NULL,"
+        + "`o_predict_6` REAL DEFAULT NULL,"
+        + "`o_predict_7` REAL DEFAULT NULL,"
+        + "`o_predict_8` REAL DEFAULT NULL,"
+        + "`o_predict_9` REAL DEFAULT NULL,"
+        + "`o_predict_10` REAL DEFAULT NULL,"
+        + "`p_predict_1` REAL DEFAULT NULL,"
+        + "`p_predict_2` REAL DEFAULT NULL,"
+        + "`p_predict_3` REAL DEFAULT NULL,"
+        + "`p_predict_4` REAL DEFAULT NULL,"
+        + "`p_predict_5` REAL DEFAULT NULL,"
+        + "`p_predict_6` REAL DEFAULT NULL,"
+        + "`p_predict_7` REAL DEFAULT NULL,"
+        + "`p_predict_8` REAL DEFAULT NULL,"
+        + "`p_predict_9` REAL DEFAULT NULL,"
+        + "`p_predict_10` REAL DEFAULT NULL,"
+        + "PRIMARY KEY(`id`)"
+        + ");")
+        print ("-INIT- Table feature has been created.")
 
-    cDB.execute("CREATE TABLE rating("
-    + "id TEXT PRIMARY KEY NOT NULL,\n"
-    + "metric REAL DEFAULT NULL,\n"
-    + "real_1 REAL DEFAULT NULL,\n"
-    + "real_2 REAL DEFAULT NULL,\n"
-    + "real_3 REAL DEFAULT NULL,\n"
-    + "real_4 REAL DEFAULT NULL,\n"
-    + "real_5 REAL DEFAULT NULL,\n"
-    + "real_6 REAL DEFAULT NULL,\n"
-    + "real_7 REAL DEFAULT NULL,\n"
-    + "real_8 REAL DEFAULT NULL,\n"
-    + "real_9 REAL DEFAULT NULL,\n"
-    + "real_10 REAL DEFAULT NULL,\n"
-    + "o_predict_1 REAL DEFAULT NULL,\n"
-    + "o_predict_2 REAL DEFAULT NULL,\n"
-    + "o_predict_3 REAL DEFAULT NULL,\n"
-    + "o_predict_4 REAL DEFAULT NULL,\n"
-    + "o_predict_5 REAL DEFAULT NULL,\n"
-    + "o_predict_6 REAL DEFAULT NULL,\n"
-    + "o_predict_7 REAL DEFAULT NULL,\n"
-    + "o_predict_8 REAL DEFAULT NULL,\n"
-    + "o_predict_9 REAL DEFAULT NULL,\n"
-    + "o_predict_10 REAL DEFAULT NULL,\n"
-    + "p_predict_1 REAL DEFAULT NULL,\n"
-    + "p_predict_2 REAL DEFAULT NULL,\n"
-    + "p_predict_3 REAL DEFAULT NULL,\n"
-    + "p_predict_4 REAL DEFAULT NULL,\n"
-    + "p_predict_5 REAL DEFAULT NULL,\n"
-    + "p_predict_6 REAL DEFAULT NULL,\n"
-    + "p_predict_7 REAL DEFAULT NULL,\n"
-    + "p_predict_8 REAL DEFAULT NULL,\n"
-    + "p_predict_9 REAL DEFAULT NULL,\n"
-    + "p_predict_10 REAL DEFAULT NULL"
-    + ")")
-    print ("-INIT- Table rating has been created.")
+        # cursor.execute("CREATE TABLE `rating`("
+        # + "`id` VARCHAR(7) PRIMARY KEY NOT NULL,"
+        # + "`metric` REAL DEFAULT NULL,"
+        # + "`real_1` REAL DEFAULT NULL,"
+        # + "`real_2` REAL DEFAULT NULL,"
+        # + "`real_3` REAL DEFAULT NULL,"
+        # + "`real_4` REAL DEFAULT NULL,"
+        # + "`real_5` REAL DEFAULT NULL,"
+        # + "`real_6` REAL DEFAULT NULL,"
+        # + "`real_7` REAL DEFAULT NULL,"
+        # + "`real_8` REAL DEFAULT NULL,"
+        # + "`real_9` REAL DEFAULT NULL,"
+        # + "`real_10` REAL DEFAULT NULL,"
+        # + "`o_predict_1` REAL DEFAULT NULL,"
+        # + "`o_predict_2` REAL DEFAULT NULL,"
+        # + "`o_predict_3` REAL DEFAULT NULL,"
+        # + "`o_predict_4` REAL DEFAULT NULL,"
+        # + "`o_predict_5` REAL DEFAULT NULL,"
+        # + "`o_predict_6` REAL DEFAULT NULL,"
+        # + "`o_predict_7` REAL DEFAULT NULL,"
+        # + "`o_predict_8` REAL DEFAULT NULL,"
+        # + "`o_predict_9` REAL DEFAULT NULL,"
+        # + "`o_predict_10` REAL DEFAULT NULL,"
+        # + "`p_predict_1` REAL DEFAULT NULL,"
+        # + "`p_predict_2` REAL DEFAULT NULL,"
+        # + "`p_predict_3` REAL DEFAULT NULL,"
+        # + "`p_predict_4` REAL DEFAULT NULL,"
+        # + "`p_predict_5` REAL DEFAULT NULL,"
+        # + "`p_predict_6` REAL DEFAULT NULL,"
+        # + "`p_predict_7` REAL DEFAULT NULL,"
+        # + "`p_predict_8` REAL DEFAULT NULL,"
+        # + "`p_predict_9` REAL DEFAULT NULL,"
+        # + "`p_predict_10` REAL DEFAULT NULL"
+        # + ")")
+        # print ("-INIT- Table rating has been created.")
+
 
     # save change
-    DB.commit()
+    connection.commit()
     # disconnect to database
-    DB.close()
+    connection.close()
     print ("-INIT- Database initalization is successful.")
 
 

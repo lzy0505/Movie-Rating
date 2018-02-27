@@ -1,6 +1,6 @@
 import requests
 import time
-import sqlite3
+import pymysql
 from queue import Queue
 from bs4 import BeautifulSoup
 from movie import Movie
@@ -8,9 +8,9 @@ from threading import Thread
 
 # the time range where we search for movies
 begin_year = 2017
-end_year = 2018
+end_year = 2017
 begin_month = 8
-end_month = 1
+end_month = 12
 
 # train or test
 mode = 'test'
@@ -88,8 +88,8 @@ def get_movie(id):
 
 # Posters
     cover_url=soup.body.find(class_="titlereference-primary-image")['src']
-    giant_cover_url=cover_url[0:cover_url.index('@')+1]+'._V1_SY1000_CR0,0,675,1000_AL_.jpg'
-    cover_url=cover_url[0:cover_url.index('@')+1]+'._V1_SY300_CR0,0,200,300_.jpg'
+    giant_cover_url=cover_url[0:cover_url.index('@._')+1]+'._V1_SY1000_CR0,0,675,1000_AL_.jpg'
+    cover_url=cover_url[0:cover_url.index('@._')+1]+'._V1_SY270_CR0,0,180,270_.jpg'
     mv.cover_url=cover_url
     mv.giant_cover_url=giant_cover_url
 
@@ -192,7 +192,7 @@ def get_info():
             mvIDQ.task_done()
             # print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
         except Exception as e:
-            print ('-CRAWLER- An {} exception occured!'.format(e), mvID)
+            print ('-CRAWLER- An {} exception occured at get_info()!'.format(e), mvID)
             mvIDQ.put(mvID)
         time.sleep(1)
     stage = 2
@@ -204,89 +204,93 @@ def store_movies():
     global stage
     time.sleep(20)
     print ("-CRAWLER- Start to store movie feature...")
-    conn = sqlite3.connect("movie.db")
-    cur = conn.cursor()
-    while (not mvINQ.empty()) or stage < 2:
-        try:
-            mvIN = mvINQ.get()
-            cur.execute(
-                "INSERT INTO feature values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (mode,
-                    mvIN.id,
-                    mvIN.title,
-                    mvIN.cover_url,
-                    mvIN.giant_cover_url,
-                    mvIN.genres,
-                    mvIN.color_info,
-                    mvIN.casts[0][0],
-                    # mvIN.casts[0][2],#ranking
-                    '1',
-                    mvIN.casts[1][0],
-                    '2',
-                    # mvIN.casts[1][2],
-                    mvIN.casts[2][0],
-                    '3',
-                    # mvIN.casts[2][2],
-                    mvIN.countries,
-                    mvIN.languages,
-                    mvIN.crews['directors'],
-                    mvIN.crews['writers'],
-                    mvIN.crews['producers'],
-                    mvIN.crews['composers'],
-                    mvIN.crews['cinematographers'],
-                    mvIN.crews['editors'],
-                    mvIN.crews['art_directors'],
-                    mvIN.crews['costume_designers'],
-                    mvIN.production_companies,
-                    mvIN.year,
-                    mvIN.runtimes))
-            ssum = 0.0
-            rating = []
-            for n in mvIN.number_of_votes:
-                ssum += n
-                rating.append(n)
-            for i in range(len(rating)):
-                rating[i] = rating[i]/ssum
+    conn = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
+                             user='admin',
+                             password='********',
+                             database='movierating',
+                             port=3306,
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
+    with conn.cursor() as cursor:
+        while (not mvINQ.empty()) or stage < 2:
+            try:
+                mvIN = mvINQ.get()
+                ssum = 0.0
+                rating = []
+                for n in mvIN.number_of_votes:
+                    ssum += n
+                    rating.append(n)
+                for i in range(len(rating)):
+                    rating[i] = rating[i]/ssum
 
-            cur.execute(
-                "INSERT INTO rating values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (mvIN.id,
-                 "NULL",
-                    rating[0],
-                    rating[1],
-                    rating[2],
-                    rating[3],
-                    rating[4],
-                    rating[5],
-                    rating[6],
-                    rating[7],
-                    rating[8],
-                    rating[9],
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL",
-                    "NULL"))
-            print ('-CRAWLER- Store moive(ID: %s) successfully.(Remain %d)' % (mvIN.id,mvIDQ.qsize()+mvINQ.qsize()))
-            conn.commit()
-            mvINQ.task_done()
-        except Exception as e:
-            print ('-CRAWLER- An {} exception occured at store_movies()!'.format(e))
+                cursor.execute(
+                    "INSERT INTO `data` values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                    (mode,
+                        mvIN.id,
+                        mvIN.title,
+                        mvIN.cover_url,
+                        mvIN.giant_cover_url,
+                        mvIN.genres,
+                        mvIN.color_info,
+                        mvIN.casts[0][0],
+                        # mvIN.casts[0][2],#ranking
+                        '1',
+                        mvIN.casts[1][0],
+                        '2',
+                        # mvIN.casts[1][2],
+                        mvIN.casts[2][0],
+                        '3',
+                        # mvIN.casts[2][2],
+                        mvIN.countries,
+                        mvIN.languages,
+                        mvIN.crews['directors'],
+                        mvIN.crews['writers'],
+                        mvIN.crews['producers'],
+                        mvIN.crews['composers'],
+                        mvIN.crews['cinematographers'],
+                        mvIN.crews['editors'],
+                        mvIN.crews['art_directors'],
+                        mvIN.crews['costume_designers'],
+                        mvIN.production_companies,
+                        mvIN.year,
+                        mvIN.runtimes,
+                        '10.0',
+                        rating[0],
+                        rating[1],
+                        rating[2],
+                        rating[3],
+                        rating[4],
+                        rating[5],
+                        rating[6],
+                        rating[7],
+                        rating[8],
+                        rating[9],
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0',
+                        '0.0'))
+                
+                print ('-CRAWLER- Store moive(ID: %s) successfully.(Remain %d)' % (mvIN.id,mvIDQ.qsize()+mvINQ.qsize()))
+                conn.commit()
+                mvINQ.task_done()
+            except Exception as e:
+                print ('-CRAWLER- An {} exception occured at store_movies()!'.format(e))
     conn.close()
     print ("-CRAWLER- Finished on store movie feature...")
 
