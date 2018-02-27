@@ -1,4 +1,4 @@
-import sqlite3
+import pymysql
 # import indices as metrics
 # from decimal import *
 # import sys
@@ -19,7 +19,13 @@ lLblCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
 def connect_to_sql():
     global cur,conn
     try:
-        conn = sqlite3.connect('movie.db') 
+        conn = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
+                             user='admin',
+                             password='movierating123',
+                             database='movierating',
+                             port=3306,
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
         cur = conn.cursor()
     except Exception as e:
         print (' - CONNECT_TO_SQL - An {} exception occured.'.format(e))
@@ -28,17 +34,17 @@ def connect_to_sql():
 def get_instance_basic(mvID):
     global cur,conn
     # 0:id, 1:title, 2:cover,3:year
-    cur.execute("SELECT title,cover_url,year FROM feature WHERE id=?",(mvID,))
+    cur.execute("SELECT `title`,`cover_url`,`year` FROM `data` WHERE `id`=%s;",(mvID,))
     rst=cur.fetchone()
     entry=[]
     entry.append(mvID)
-    entry.append(rst[0] )
-    temp=rst[1]+""
+    entry.append(rst['title'] )
+    temp=rst['cover_url']+""
     temp=temp[0:15]+"cn"+temp[17:len(temp)]
     i=temp.index('._V1')
     temp=temp[0:i]+'._V1_SY270_CR0,0,180,270_.jpg'
     entry.append(temp)
-    entry.append(rst[2] )
+    entry.append(rst['year'] )
     # rating = []
     # for col in lLblCols:
     #     cur.execute("SELECT %s FROM rating WHERE id =?"%col,(mvID,))
@@ -54,27 +60,26 @@ def get_instance_basic(mvID):
 
 def select_movie():
     global cur,conn
-    connect_to_sql()
     lMv=[]
-    cur.execute("SELECT id FROM feature WHERE for=?",("test",))
+    cur.execute("SELECT `id` FROM `data` WHERE `for`='test';")
     # TODO: filte movie by year/category
     lRst=cur.fetchall()
     for i in lRst:
-        lMv.append(get_instance_basic(i[0]))
+        lMv.append(get_instance_basic(i['id']))
+    conn.close()
     return lMv
 
 
 
 def get_instance_details(mvID):
     global cur,conn
-    connect_to_sql()
     movie=[]
     rating = []
     # rating_ = []
+    cur.execute("SELECT `real_1`, `real_2`, `real_3`, `real_4`, `real_5`, `real_6`, `real_7`, `real_8`, `real_9`, `real_10`, `o_predict_1`, `o_predict_2`, `o_predict_3`, `o_predict_4`, `o_predict_5`, `o_predict_6`, `o_predict_7`, `o_predict_8`, `o_predict_9`, `o_predict_10` FROM `data` WHERE `id` = %s;",mvID)
+    rst=cur.fetchone()
     for col in lLblCols:
-        cur.execute("SELECT %s FROM rating WHERE id = '%s'" % (col,mvID))
-        rst=cur.fetchone()
-        rating.append(int(rst[0]*10000)/100)
+        rating.append(int(rst[col]*10000)/100)
         # rating_.append(rst[0])
     movie.append(rating)
     # cur.execute("SELECT predict_time,predict_text FROM rating WHERE id =?",(mvID,))
@@ -87,56 +92,55 @@ def get_instance_details(mvID):
 
 
     for keyword in lFtrCols:
-        cur.execute("SELECT %s FROM feature WHERE id= '%s'" % (keyword,str(mvID)))
+        cur.execute("SELECT `%s` FROM `data` WHERE `id`= %s;" % (keyword,str(mvID)))
         result = cur.fetchone()
         if keyword=="year" or keyword=="runtimes":
-            if result[0]==0:
+            if result[keyword]==0:
                 movie.append('No information')
             else:
-                movie.append(result[0])
+                movie.append(result[keyword])
         elif keyword =="giant_cover_url":
-            temp=result[0]+""
+            temp=result["giant_cover_url"]+""
             temp=temp[0:15]+"cn"+temp[17:len(temp)]
             movie.append(temp)
         else:
             templist=[]
-            if result[0]=='NULL':
+            if result[keyword]=='NULL':
                 movie.append(['No information'])
             else:
-                movie.append(result[0].split('$'))                      
-        conn.commit()
+                movie.append(result[keyword].split('$'))                      
+    conn.close()
 
     return movie
 
 
 def perfect_prediction():
     global cur,conn
-    connect_to_sql()
     movies=[]
     # TODO: db operation should be optimized.
-    cur.execute("SELECT id FROM rating order by metric ")
+    cur.execute("SELECT `id` FROM `data` WHERE `for` = 'test' order by `metric`;")
     result = cur.fetchall()
     for i in range(3):
         entry=[]
-        entry.append(result[i][0])
-        cur.execute("SELECT title,giant_cover_url FROM feature WHERE id= '%s'" % result[i][0])
+        entry.append(result[i]['id'])
+        cur.execute("SELECT `title`,`giant_cover_url` FROM `data` WHERE `id`= %s;" % result[i]['id'])
         r = cur.fetchone()
-        entry.append(r[0])
-        entry.append(r[1])
+        entry.append(r['title'])
+        entry.append(r['giant_cover_url'])
         movies.append(entry)
     for i in range(6):
         entry=[]
-        entry.append(result[3+i][0])
-        cur.execute("SELECT title,cover_url FROM feature WHERE id= '%s'" % result[3+i][0])
+        entry.append(result[3+i]['id'])
+        cur.execute("SELECT `title`,`cover_url` FROM `data` WHERE `id`= %s;" % result[3+i]['id'])
         r = cur.fetchone()
-        entry.append(r[0])
-        temp=r[1]+""
+        entry.append(r['title'])
+        temp=r['cover_url']+""
         temp=temp[0:15]+"cn"+temp[17:len(temp)]
         i=temp.index('._V1')
         temp=temp[0:i]+'._V1_SY300_CR0,0,200,300_.jpg'
         entry.append(temp)
         movies.append(entry)
-    conn.commit()
+    conn.close()
     return movies
 
 
@@ -145,18 +149,18 @@ def recent_prediction():
     global cur,conn
     connect_to_sql()
     movies=[]
-    cur.execute("SELECT id FROM rating order by metric ")
+    cur.execute("SELECT `id` FROM `data` order by `metric`;")
     result = cur.fetchall()
     for i in range(3):
         entry=[]
         entry.append(result[i][0])
-        cur.execute("SELECT title,giant_cover_url FROM feature WHERE id= %s" % result[i][0])
+        cur.execute("SELECT `title`,`giant_cover_url` FROM `data` WHERE `id`= %s;" % result[i][0])
         r = cur.fetchone()
         entry.append(r[0])
         entry.append(r[1])
         movies.append(entry)
 
-    cur.execute("SELECT %s FROM feature WHERE for='test' order by id " % 'id, title,cover_url')
+    cur.execute("SELECT `id`, `title`,`cover_url` FROM `data` WHERE `for`='test' order by `id`;")
     result = cur.fetchall()
     entry=[]
     for i in range(6):

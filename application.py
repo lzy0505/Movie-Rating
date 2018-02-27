@@ -19,6 +19,7 @@ application = Flask(__name__)
 
 @application.route('/')
 def home():
+    database.connect_to_sql()
     etrs=database.perfect_prediction()
     return render_template('index.html',entries=etrs)
 
@@ -28,11 +29,13 @@ def about():
 
 @application.route('/list/')
 def mlist():
+    database.connect_to_sql()
     etrs=database.select_movie()
     return render_template('ratinglist.html',entries=etrs)
 
 @application.route('/<movieid>/')
 def entries(movieid):
+    database.connect_to_sql()
     etry=database.get_instance_details(movieid)
     return render_template('single.html',entry=etry)
 
@@ -43,4 +46,4 @@ def entries(movieid):
 
 
 if __name__ == '__main__':
-   	application.run()
+   	application.run(debug=False)
