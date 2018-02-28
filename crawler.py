@@ -1,24 +1,13 @@
 import requests
 import time
+import logging
 import pymysql
 from queue import Queue
 from bs4 import BeautifulSoup
 from movie import Movie
 from threading import Thread
 
-# the time range where we search for movies
-begin_year = 2017
-end_year = 2017
-begin_month = 8
-end_month = 12
 
-# train or test
-mode = 'test'
-
-
-
-# We use multi-thread to crawl the data
-thread_number = 5
 
 # Below are variables associated with IMDB data
 imdb_new_movie_url = 'http://www.imdb.com/movies-coming-soon/'
@@ -27,40 +16,31 @@ crews = ['directors','writers','producers','composers','cinematographers','edito
 
 
 # the multi-processor queue of movie IDs
-mvIDQ = Queue(maxsize=500)
-mvINQ = Queue(maxsize=100)
-
-stage = 0
+mvIDQ = Queue(maxsize=200)
+mvINQ = Queue(maxsize=200)
 
 
-def get_IDs():
+
+def get_IDs(year,month):
     '''
     Get the movie IDs by crawling the IMDB website. We will later use these
     IDs to get more information about the movie using IMDbPy.
-    '''
-    global stage
-    for year in range(begin_year, end_year+1):
-        for month in range(1, 12+1):
-            if(year == begin_year and month < begin_month):
-                continue
-            elif(year == end_year and month >= end_month):
-                break
-            else:
-                url = imdb_new_movie_url + ('%d-%02d' % (year, month))
-                print ("-CRAWLER- Getting movie id from: %s" % url)
-                # decode the webpage using BeautifulSoup
-                soup = BeautifulSoup(requests.get(url).content, "lxml")
-                list_item = soup.findAll(True, {'class': "list_item"})
-                for item in list_item:
-                    h4 = item.findAll('h4')
-                    for h in h4:
-                        m_id = h.find('a').get('href')
-                        m_id = m_id[9: m_id.index('?')-1]
-                        # put id into queue
-                        mvIDQ.put(m_id)
-                        print ("-CRAWLER- Got movie id: %s" % m_id)
-    stage = 1
-    print ('-CRAWLER- Finished on getting movie id.')
+    ''' 
+    if month==1:
+        year-=1
+        month =12
+    url = imdb_new_movie_url + ('%d-%02d' % (year, month))
+    # decode the webpage using BeautifulSoup
+    soup = BeautifulSoup(requests.get(url).content, "lxml")
+    list_item = soup.findAll(True, {'class': "list_item"})
+    for item in list_item:
+        h4 = item.findAll('h4')
+        for h in h4:
+            m_id = h.find('a').get('href')
+            m_id = m_id[9: m_id.index('?')-1]
+            # put id into queue
+            mvIDQ.put(m_id)
+    logging.info('-CRAWLER- Finished on getting movie id.')
 
 
 def get_rating(mvID):
@@ -180,30 +160,22 @@ def get_movie(id):
 
 
 def get_info():
-    global stage
-    time.sleep(5)
-    print ("-CRAWLER- Start to get movie feature...")
-    while (not mvIDQ.empty()) or stage == 0:
+    logging.info("-CRAWLER- Start to get movie feature...")
+    while not mvIDQ.empty():
         try:
             mvID = mvIDQ.get()
-            # print "-CRAWLER- Getting movie(id: %s) feature..." % mvID
             mvOJ = get_movie(mvID)
             mvINQ.put(mvOJ)
             mvIDQ.task_done()
-            # print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
         except Exception as e:
-            print ('-CRAWLER- An {} exception occured at get_info()!'.format(e), mvID)
-            mvIDQ.put(mvID)
+            logging.exception('-CRAWLER- An {} exception occured at get_info()!'.format(e), mvID)
         time.sleep(1)
-    stage = 2
-    print ("Done!")
-    print ('-CRAWLER- Finished on getting movie features.')
+    logging.info('-CRAWLER- Finished on getting movie features.')
         
 
 def store_movies():
-    global stage
     time.sleep(20)
-    print ("-CRAWLER- Start to store movie feature...")
+    logging.info("-CRAWLER- Start to store movie feature...")
     conn = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
                              user='admin',
                              password='********',
@@ -212,7 +184,7 @@ def store_movies():
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
     with conn.cursor() as cursor:
-        while (not mvINQ.empty()) or stage < 2:
+        while not mvINQ.empty():
             try:
                 mvIN = mvINQ.get()
                 ssum = 0.0
@@ -224,8 +196,8 @@ def store_movies():
                     rating[i] = rating[i]/ssum
 
                 cursor.execute(
-                    "INSERT INTO `data` values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
-                    (mode,
+                    "INSERT INTO `data` values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                    ('test',
                         mvIN.id,
                         mvIN.title,
                         mvIN.cover_url,
@@ -274,52 +246,37 @@ def store_movies():
                         '0.0',
                         '0.0',
                         '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
                         '0.0'))
-                
-                print ('-CRAWLER- Store moive(ID: %s) successfully.(Remain %d)' % (mvIN.id,mvIDQ.qsize()+mvINQ.qsize()))
+                logging.info('-CRAWLER- Store moive(ID: %s) successfully.(Remain %d)' % (mvIN.id,mvIDQ.qsize()+mvINQ.qsize()))
                 conn.commit()
                 mvINQ.task_done()
             except Exception as e:
-                print ('-CRAWLER- An {} exception occured at store_movies()!'.format(e))
+                logging.exception('-CRAWLER- An {} exception occured at store_movies()!'.format(e))
     conn.close()
-    print ("-CRAWLER- Finished on store movie feature...")
+    logging.info("-CRAWLER- Finished on store movie feature...")
 
 def thread_init():
     for i in range(thread_number):
         if i == thread_number-1:
-            t = Thread(target=store_movies)
+            t = Thread(target=)
         else:
-            t = Thread(target=get_info) 
+            t = Thread(target=) 
         t.deamon = True
         t.start()
 
 
-def run(by,bm,ey,em,m):
-    global begin_month,begin_year,end_month,end_year,mode
-    begin_month=bm
-    begin_year=by
-    end_month=em
-    end_year=ey
-    mode=m
-    
-    thread_init()
-    get_IDs()
+def run():
+    year=time.localtime(time.time())[0]
+    month=time.localtime(time.time())[1]
+    get_IDs(year,month)
+    get_info()
     mvIDQ.join()
+    store_movies()
     mvINQ.join()
-    print ("Finnish ALL!")
+    logging.info("Finnish ALL tasks!")
 
 if __name__ == '__main__':
-    run(2017,1,2018,1,"train")
+    run()
 
 
     

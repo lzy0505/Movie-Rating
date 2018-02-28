@@ -1,3 +1,4 @@
+import logging
 import pymysql
 import numpy as np
 
@@ -28,7 +29,7 @@ def scan_column(cur,conn):
         for ctlg in lFtrCols:
             idxCtlg.append(index)
             cur.execute("SELECT `%s` FROM `data`;" % ctlg)
-            print ("-GENERATE- Scanning %s..." % ctlg)
+            logging.info("-GENERATE- Scanning %s..." % ctlg)
             result = cur.fetchall()
             # get the max& min value of year and runtimes by iteration
             if ctlg in ['year','runtimes']:
@@ -82,10 +83,9 @@ def scan_column(cur,conn):
                 lValue.append('Others_%s' % ctlg)
                 index += 1
             conn.commit()
-            # print '-SCAN- Catalog %s scan successfully.' % ctlg
         idxCtlg.append(index)
     except Exception as e:
-            print ('-SCAN- An {} exception occured'.format(e))
+            logging.exception('-SCAN- An {} exception occured'.format(e))
     return (idxCtlg,lValue)
 
 def generate_matrices(mvID,cur,conn,idxCtlg,lValue):
@@ -128,7 +128,7 @@ def generate_matrices(mvID,cur,conn,idxCtlg,lValue):
 
         for keyword in lRtgCols:
             oneLbl[0, lRtgCols.index(keyword)] = float(rst[keyword])
-        print ('-GENERATE_MATRICES- Finished on generating train data of %s.'% mvID)
+        logging.info('-GENERATE_MATRICES- Finished on generating train data of %s.'% mvID)
     except Exception as e:
-        print ('-GENERATE_MATRICES- An {} exception occured!'.format(e))
+        logging.exception('-GENERATE_MATRICES- An {} exception occured!'.format(e))
     return (oneFtr, oneLbl)
