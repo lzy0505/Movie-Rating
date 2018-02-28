@@ -303,12 +303,23 @@ def thread_init():
         t.deamon = True
         t.start()
 
-if __name__ == '__main__':
+
+def run(by,bm,ey,em,m):
+    global begin_month,begin_year,end_month,end_year,mode
+    begin_month=bm
+    begin_year=by
+    end_month=em
+    end_year=ey
+    mode=m
+    
     thread_init()
     get_IDs()
     mvIDQ.join()
     mvINQ.join()
     print ("Finnish ALL!")
+
+if __name__ == '__main__':
+    run(2017,1,2018,1,"train")
 
 
     
