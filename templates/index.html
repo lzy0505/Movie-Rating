@@ -61,9 +61,9 @@
 							<div class="col-md-9">
 								<div class="slider">
 									<ul class="slides">
-										<li style="height: 500px;"><a href="/{{entries[0][0]}}/"><img src="{{entries[0][2]}}" alt="{{entries[0][1]}}"></a></li>
-										<li style="height: 500px;"><a href="/{{entries[1][0]}}/"><img src="{{entries[1][2]}}" alt="{{entries[1][1]}}"></a></li>
-										<li style="height: 500px;"><a href="/{{entries[2][0]}}/"><img src="{{entries[2][2]}}" alt="{{entries[2][1]}}"></a></li>
+										<li style="height: 500px;"><a href="/{{entries1[0][0]}}/"><img src="{{entries1[0][2]}}" alt="{{entries1[0][1]}}"></a></li>
+										<li style="height: 500px;"><a href="/{{entries1[1][0]}}/"><img src="{{entries1[1][2]}}" alt="{{entries1[1][1]}}"></a></li>
+										<li style="height: 500px;"><a href="/{{entries1[2][0]}}/"><img src="{{entries1[2][2]}}" alt="{{entries1[2][1]}}"></a></li>
 									</ul>
 								</div>
 							</div>
@@ -71,12 +71,12 @@
 								<div class="row">
 									<div class="col-sm-6 col-md-12">
 										<div class="latest-movie" style="height: 235px;">
-											<a href="/{{entries[3][0]}}/"><img src="{{entries[3][2]}}" alt="{{entries[3][1]}}"></a>
+											<a href="/{{entries1[3][0]}}/"><img src="{{entries1[3][2]}}" alt="{{entries1[3][1]}}"></a>
 										</div>
 									</div>
 									<div class="col-sm-6 col-md-12">
 										<div class="latest-movie" style="height: 235px;">
-											<a href="/{{entries[4][0]}}/"><img src="{{entries[4][2]}}" alt="{{entries[4][1]}}"></a>
+											<a href="/{{entries1[4][0]}}/"><img src="{{entries1[4][2]}}" alt="{{entries1[4][1]}}"></a>
 										</div>
 									</div>
 								</div>
@@ -85,79 +85,84 @@
 						<div class="row">
 							<div class="col-sm-6 col-md-3">
 								<div class="latest-movie"style="height: 150px;">
-									<a href="/{{entries[5][0]}}/"><img src="{{entries[5][2]}}" alt="{{entries[5][1]}}"></a>
+									<a href="/{{entries1[5][0]}}/"><img src="{{entries1[5][2]}}" alt="{{entries1[5][1]}}"></a>
 								</div>
 							</div>
 							<div class="col-sm-6 col-md-3">
 								<div class="latest-movie"style="height: 150px;">
-									<a href="/{{entries[6][0]}}/"><img src="{{entries[6][2]}}" alt="{{entries[6][1]}}"></a>
+									<a href="/{{entries1[6][0]}}/"><img src="{{entries1[6][2]}}" alt="{{entries1[6][1]}}"></a>
 								</div>
 							</div>
 							<div class="col-sm-6 col-md-3">
 								<div class="latest-movie"style="height: 150px;">
-									<a href="/{{entries[7][0]}}/"><img src="{{entries[7][2]}}" alt="{{entries[7][1]}}"></a>
+									<a href="/{{entries1[7][0]}}/"><img src="{{entries1[7][2]}}" alt="{{entries1[7][1]}}"></a>
 								</div>
 							</div>
 							<div class="col-sm-6 col-md-3">
 								<div class="latest-movie"style="height: 150px;">
-									<a href="/{{entries[8][0]}}/"><img src="{{entries[8][2]}}" alt="{{entries[8][1]}}"></a>
+									<a href="/{{entries1[8][0]}}/"><img src="{{entries1[8][2]}}" alt="{{entries1[8][1]}}"></a>
 								</div>
 							</div>
 						</div> <!-- .row -->
-						
+						<h1 class="movie-title">Recent Movies</h1>	
 						<div class="row">
-							<div class="col-md-3">
-								<h2 class="section-title">December premiere</h2>
-								<p>Lorem ipsum dolor sit amet consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
+							<div class="col-md-4">
 								<ul class="movie-schedule">
 									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
+										<div class="date">{{entries2[0]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[0]['id']}}/">{{entries2[0]['title']}}</a></h2>
 									</li>
 									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
+											<div class="date">{{entries2[1]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[1]['id']}}/">{{entries2[1]['title']}}</a></h2>
 									</li>
 									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
-									</li>
-
-								</ul> <!-- .movie-schedule -->
-							</div>
-							<div class="col-md-3">
-								<h2 class="section-title">November premiere</h2>
-								<p>Lorem ipsum dolor sit amet consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
-								<ul class="movie-schedule">
-									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
+											<div class="date">{{entries2[2]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[2]['id']}}/">{{entries2[2]['title']}}</a></h2>
 									</li>
 									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
-									</li>
-									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
+											<div class="date">{{entries2[3]['date']}}</div>
+											<h2 class="entry-title"><a href="/{{entries2[3]['id']}}/">{{entries2[3]['title']}}</a></h2>
 									</li>
 								</ul> <!-- .movie-schedule -->
 							</div>
-							<div class="col-md-3">
-								<h2 class="section-title">October premiere</h2>
-								<p>Lorem ipsum dolor sit amet consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
+							<div class="col-md-4">
 								<ul class="movie-schedule">
 									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
+											<div class="date">{{entries2[4]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[4]['id']}}/">{{entries2[4]['title']}}</a></h2>
 									</li>
 									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
+											<div class="date">{{entries2[5]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[5]['id']}}/">{{entries2[5]['title']}}</a></h2>
 									</li>
 									<li>
-										<div class="date">16/12</div>
-										<h2 class="entry-title"><a href="#">Perspiciatis unde omnis</a></h2>
+											<div class="date">{{entries2[6]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[6]['id']}}/">{{entries2[6]['title']}}</a></h2>
+									</li>
+									<li>
+											<div class="date">{{entries2[7]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[7]['id']}}/">{{entries2[7]['title']}}</a></h2>
+									</li>
+								</ul> <!-- .movie-schedule -->
+							</div>
+							<div class="col-md-4">
+								<ul class="movie-schedule">
+									<li>
+											<div class="date">{{entries2[8]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[8]['id']}}/">{{entries2[8]['title']}}</a></h2>
+									</li>
+									<li>
+											<div class="date">{{entries2[9]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[9]['id']}}/">{{entries2[9]['title']}}</a></h2>
+									</li>
+									<li>
+											<div class="date">{{entries2[10]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[10]['id']}}/">{{entries2[10]['title']}}</a></h2>
+									</li>
+									<li>
+											<div class="date">{{entries2[11]['date']}}</div>
+										<h2 class="entry-title"><a href="/{{entries2[11]['id']}}/">{{entries2[11]['title']}}</a></h2>
 									</li>
 								</ul> <!-- .movie-schedule -->
 							</div>

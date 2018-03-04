@@ -20,8 +20,9 @@ application = Flask(__name__)
 @application.route('/')
 def home():
     database.connect_to_sql()
-    etrs=database.perfect_prediction()
-    return render_template('index.html',entries=etrs)
+    perfect_etrs=database.perfect_prediction()
+    recent_etrs=database.recent_prediction()
+    return render_template('index.html',entries1=perfect_etrs,entries2=recent_etrs)
 
 @application.route('/about/')
 def about():
@@ -46,4 +47,4 @@ def entries(movieid):
 
 
 if __name__ == '__main__':
-   	application.run(debug=False)
+   	application.run(debug=True)

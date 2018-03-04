@@ -1,5 +1,5 @@
 import pymysql
-# import indices as metrics
+import time
 # from decimal import *
 # import sys
 # sys.path.append("..")
@@ -140,44 +140,39 @@ def perfect_prediction():
         temp=temp[0:i]+'._V1_SY300_CR0,0,200,300_.jpg'
         entry.append(temp)
         movies.append(entry)
-    conn.close()
     return movies
 
 
 # TODO: order by date
 def recent_prediction():
     global cur,conn
-    connect_to_sql()
+    # for official version
+    # year = time.localtime(time.time())[0]
+    # month = time.localtime(time.time())[1]
+    # date = []
+    # for i in range(3):
+    #     if month is not 1:
+    #         month -=1
+    #     else:
+    #         month =12
+    #         year -=1
+    #     date.append((year,month))
+    date = [(2017,11),(2017,10),(2017,9)]
     movies=[]
-    cur.execute("SELECT `id` FROM `data` order by `metric`;")
-    result = cur.fetchall()
-    for i in range(3):
-        entry=[]
-        entry.append(result[i][0])
-        cur.execute("SELECT `title`,`giant_cover_url` FROM `data` WHERE `id`= %s;" % result[i][0])
-        r = cur.fetchone()
-        entry.append(r[0])
-        entry.append(r[1])
-        movies.append(entry)
+    for (year,month) in date:
+        cur.execute("SELECT `id`,`title` FROM `data` WHERE `for`='test' and `year`=%d and `month` = %d;" % (year,month))
+        rst=cur.fetchmany(4)
+        for mv in rst:
+            mv['date']='%d-%02d' % (year, month)
+            movies.append(mv)
+    conn.close()
 
-    cur.execute("SELECT `id`, `title`,`cover_url` FROM `data` WHERE `for`='test' order by `id`;")
-    result = cur.fetchall()
-    entry=[]
-    for i in range(6):
-        entry.clear()
-        entry.append(rst[3+i][0] )
-        entry.append(rst[3+i][1] )
-        temp=rst[3+i][2]+""
-        temp=temp[0:15]+"cn"+temp[17:len(temp)]
-        i=temp.index('._V1')
-        temp=temp[0:i]+'._V1._SX200_SY300_.jpg'
-        entry.append(temp)
-        movies.append(entry)
-    conn.commit()
     return movies
 
 
 # if __name__ == '__main__':
-#     print (select_movie())
-#     print (get_instance_details('3314958'))
-#     print (perfect_prediction())
+    # print (select_movie())
+    # print (get_instance_details('3314958'))
+    # print (perfect_prediction())
+    # connect_to_sql()
+    # print (recent_prediction())
