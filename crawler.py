@@ -9,7 +9,7 @@ from threading import Thread
 # the time range where we search for movies
 begin_year = 2017
 end_year = 2017
-begin_month = 8
+begin_month = 7
 end_month = 12
 
 # train or test
@@ -18,7 +18,7 @@ mode = 'test'
 
 
 # We use multi-thread to crawl the data
-thread_number = 5
+thread_number = 9
 
 # Below are variables associated with IMDB data
 imdb_new_movie_url = 'http://www.imdb.com/movies-coming-soon/'
@@ -57,7 +57,7 @@ def get_IDs():
                         m_id = h.find('a').get('href')
                         m_id = m_id[9: m_id.index('?')-1]
                         # put id into queue
-                        mvIDQ.put(m_id)
+                        mvIDQ.put((m_id,'%d-%02d' % (year, month)))
                         print ("-CRAWLER- Got movie id: %s" % m_id)
     stage = 1
     print ('-CRAWLER- Finished on getting movie id.')
@@ -73,18 +73,16 @@ def get_rating(mvID):
     return lIntVoting
 
 
-def get_movie(id):
+def get_movie(id,date):
     mv = Movie()
     mv.id = id
     url = 'http://www.imdb.com/title/tt%s/reference' % id
     soup = BeautifulSoup(requests.get(url).content, "lxml")
-# Title & Year
+# Title
     tt=soup.head.title.string
     length=len(tt)
     title=tt[0:length-31]
     mv.title=title
-    year = tt[length-29:length-25]
-    mv.year= year
 
 # Posters
     cover_url=soup.body.find(class_="titlereference-primary-image")['src']
@@ -114,10 +112,13 @@ def get_movie(id):
         actor=[]
         actor.append(item.a.span.string)
         actor.append(item.a['href'][8:15])
+        #TODO rank
+        #actor.append(rank(item.a['href'][8:15],date))
         lists.append(actor)
     while len(lists) <3:
         lists.append(['NULL','0000000'])
     mv.casts=lists
+
 
 
 
@@ -176,6 +177,10 @@ def get_movie(id):
 #Ratings
     mv.number_of_votes = get_rating(id)
 
+#Date
+    mv.year = int(date[0:4])
+    mv.month = int(date[5:7])
+
     return mv
 
 
@@ -185,15 +190,15 @@ def get_info():
     print ("-CRAWLER- Start to get movie feature...")
     while (not mvIDQ.empty()) or stage == 0:
         try:
-            mvID = mvIDQ.get()
+            (mvID,date) = mvIDQ.get()
             # print "-CRAWLER- Getting movie(id: %s) feature..." % mvID
-            mvOJ = get_movie(mvID)
+            mvOJ = get_movie(mvID,date)
             mvINQ.put(mvOJ)
             mvIDQ.task_done()
             # print '-CRAWLER- Get movie features(ID: %s) successfully.' % mvID
         except Exception as e:
             print ('-CRAWLER- An {} exception occured at get_info()!'.format(e), mvID)
-            mvIDQ.put(mvID)
+            # mvIDQ.put(mvID,date)
         time.sleep(1)
     stage = 2
     print ("Done!")
@@ -206,7 +211,7 @@ def store_movies():
     print ("-CRAWLER- Start to store movie feature...")
     conn = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
                              user='admin',
-                             password='********',
+                             password='***',
                              database='movierating',
                              port=3306,
                              charset='utf8mb4',
@@ -224,7 +229,7 @@ def store_movies():
                     rating[i] = rating[i]/ssum
 
                 cursor.execute(
-                    "INSERT INTO `data` values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                    "INSERT INTO `data` values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
                     (mode,
                         mvIN.id,
                         mvIN.title,
@@ -253,6 +258,7 @@ def store_movies():
                         mvIN.crews['costume_designers'],
                         mvIN.production_companies,
                         mvIN.year,
+                        mvIN.month,
                         mvIN.runtimes,
                         '10.0',
                         rating[0],
@@ -304,14 +310,7 @@ def thread_init():
         t.start()
 
 
-def run(by,bm,ey,em,m):
-    global begin_month,begin_year,end_month,end_year,mode
-    begin_month=bm
-    begin_year=by
-    end_month=em
-    end_year=ey
-    mode=m
-    
+def run():
     thread_init()
     get_IDs()
     mvIDQ.join()
@@ -319,7 +318,7 @@ def run(by,bm,ey,em,m):
     print ("Finnish ALL!")
 
 if __name__ == '__main__':
-    run(2017,1,2018,1,"train")
+    run()
 
 
     

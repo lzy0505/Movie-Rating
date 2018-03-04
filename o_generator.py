@@ -2,7 +2,7 @@ import pymysql
 import numpy as np
 
 
-lFtrCols = ['year', 'runtimes','genres', 'color_info', 'cast_1st','cast_2nd', 'cast_3rd', 
+lFtrCols = ['month', 'runtimes','genres', 'color_info', 'cast_1st','cast_2nd', 'cast_3rd', 
                 'countries', 'languages', 'director' ,'writer','producer',
                'composers', 'cinematographer', 'editor', 'art_director', 
                'costume_designer', 'production_companies']
@@ -12,15 +12,16 @@ lRtgCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
 # threshold = [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 7]
 threshold = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-mxYear = 0
-mnYear = 3000
+# mxYear = 0
+# mnYear = 3000
 mxRntms = 0
 mnRntms = 1000
 
 
 
 def scan_column(cur,conn):
-    global mxYear, mnYear, mxRntms, mnRntms
+    # global mxYear, mnYear, mxRntms, mnRntms
+    global mxRntms, mnRntms
     idxCtlg =[]
     lValue=[]
     try:
@@ -31,28 +32,25 @@ def scan_column(cur,conn):
             print ("-GENERATE- Scanning %s..." % ctlg)
             result = cur.fetchall()
             # get the max& min value of year and runtimes by iteration
-            if ctlg in ['year','runtimes']:
+            if ctlg in ['runtimes']:
                 nullflag = False
                 for instance in result:
                     if instance[ctlg] == 0:
                         nullflag = True
                         continue
                     instance = int(instance[ctlg])
-                    if ctlg == 'year':
-                        if instance > mxYear:
-                            mxYear = instance
-                        elif instance < mnYear:
-                            mnYear = instance
-                    else:
-                        if instance > mxRntms:
-                            mxRntms = instance
-                        elif instance < mnRntms:
-                            mnRntms = instance
+                    if instance > mxRntms:
+                        mxRntms = instance
+                    elif instance < mnRntms:
+                        mnRntms = instance
                 lValue.append(ctlg)
                 index += 1
                 if nullflag:
                     lValue.append("NULL_" + ctlg)
                     index += 1
+            elif ctlg is 'month':
+                lValue.append(ctlg)
+                index += 1
             else:
                 # a dict to count number of each value
                 tmpDictValue = {}
@@ -89,20 +87,21 @@ def scan_column(cur,conn):
     return (idxCtlg,lValue)
 
 def generate_matrices(mvID,cur,conn,idxCtlg,lValue):
-    global mxYear, mnYear, mxRntms, mnRntms
+    # global mxYear, mnYear, mxRntms, mnRntms
+    global mxRntms, mnRntms
     try:
         oneFtr = np.zeros((1, len(lValue)), dtype=np.double)
         oneLbl = np.zeros((1, 10), dtype=np.double)
-        cur.execute('SELECT * FROM `feature` WHERE `id`= %s;',mvID)
+        cur.execute('SELECT * FROM `data` WHERE `id`= %s;',mvID)
         rst = cur.fetchone()
         for ctlg in lFtrCols:
-            if ctlg == "year" or ctlg == "runtimes":
+            if ctlg in ["month","runtimes"]:
                 if int(rst[ctlg]) == 0: # NULL
                     oneFtr[0, i] = 0.0
                     oneFtr[0, idxCtlg[lFtrCols.index(ctlg)+1] - 1] = 1.0
                 else:
-                    if ctlg == "year":
-                        var = (float(rst[ctlg]) - mnYear) / (mxYear - mnYear)
+                    if ctlg == "month":
+                        var = (float(rst[ctlg]) - 1) / 11
                     else:
                         var = (float(rst[ctlg]) - mnRntms) / (mxRntms - mnRntms)
                     oneFtr[0, idxCtlg[lFtrCols.index(ctlg)]] = var

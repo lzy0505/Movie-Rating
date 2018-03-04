@@ -4,6 +4,8 @@ import bfgslld as alg
 import predict
 
 
+#TODO: Still year
+
 lFtrCols = ["year", "runtimes","cast_1st_rank","cast_2nd_rank","cast_3rd_rank", 
                 "genres", 'color_info', 'cast_1st','cast_2nd', 'cast_3rd', 
                 'countries', 'languages', 'director' ,'writer',"producer",

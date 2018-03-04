@@ -5,7 +5,7 @@ def create_table():
     # connect to database
     connection = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
                             user='admin',
-                            password='********',
+                            password='***',
                             database='movierating',
                             port=3306,
                             charset='utf8mb4',
@@ -46,6 +46,7 @@ def create_table():
         + "`costume_designer` TEXT DEFAULT NULL,"
         + "`production_companies` TEXT NOT NULL,"
         + "`year` SMALLINT NOT NULL,"
+        + "`month` SMALLINT NOT NULL,"
         + "`runtimes` SMALLINT NOT NULL,"
         + "`metric` REAL DEFAULT NULL,"
         + "`real_1` REAL DEFAULT NULL,"

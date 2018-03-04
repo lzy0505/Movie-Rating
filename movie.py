@@ -13,9 +13,11 @@ class Movie(object):
         self.languages = ''
         self.production_companies = ''
         self.year = 1900
+        self.month = 0
         self.runtimes = 60
         self.casts_ranking = 1.1
         self.number_of_votes = []
+
         # self.budget = 0
 
     @property
@@ -65,6 +67,10 @@ class Movie(object):
     @property
     def year(self):
         return self._year
+
+    @property
+    def month(self):
+        return self._month
 
     @property
     def runtimes(self):
@@ -129,6 +135,10 @@ class Movie(object):
     @year.setter
     def year(self, value):
         self._year = value
+
+    @month.setter
+    def month(self, value):
+        self._month = value
 
     @runtimes.setter
     def runtimes(self, value):
