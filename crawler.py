@@ -5,7 +5,6 @@ import pymysql
 from queue import Queue
 from bs4 import BeautifulSoup
 from movie import Movie
-from threading import Thread
 
 
 

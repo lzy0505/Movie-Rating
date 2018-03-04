@@ -1,0 +1,5 @@
+version: 1
+cron:
+ - name: "task"
+   url: "/run_crawler"
+   schedule: "*/5 * * * *"
