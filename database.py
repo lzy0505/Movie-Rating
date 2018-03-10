@@ -7,8 +7,8 @@ lFtrCols = ["title","year", "runtimes","giant_cover_url","genres", 'color_info',
                'composers','editor' , 'art_director','cinematographer', 'costume_designer','production_companies']
 
 lLblCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
-               "real_7", "real_8", "real_9", "real_10","o_predict_1","o_predict_2","o_predict_3", "o_predict_4", "o_predict_5", "o_predict_6",
-                "o_predict_7", "o_predict_8", "o_predict_9", "o_predict_10"]
+               "real_7", "real_8", "real_9", "real_10","predict_1","predict_2","predict_3", "predict_4", "predict_5", "predict_6",
+                "predict_7", "predict_8", "predict_9", "predict_10"]
 
 # indexs=['cheby','clark','cbra','k-l','cos','intsc']
 
@@ -72,7 +72,7 @@ def get_instance_details(mvID):
     global cur,conn
     movie=[]
     rating = []
-    cur.execute("SELECT `real_1`, `real_2`, `real_3`, `real_4`, `real_5`, `real_6`, `real_7`, `real_8`, `real_9`, `real_10`, `o_predict_1`, `o_predict_2`, `o_predict_3`, `o_predict_4`, `o_predict_5`, `o_predict_6`, `o_predict_7`, `o_predict_8`, `o_predict_9`, `o_predict_10` FROM `data` WHERE `id` = %s;",mvID)
+    cur.execute("SELECT `real_1`, `real_2`, `real_3`, `real_4`, `real_5`, `real_6`, `real_7`, `real_8`, `real_9`, `real_10`, `predict_1`, `predict_2`, `predict_3`, `predict_4`, `predict_5`, `predict_6`, `predict_7`, `predict_8`, `predict_9`, `predict_10` FROM `data` WHERE `id` = %s;",mvID)
     rst=cur.fetchone()
     for col in lLblCols:
         rating.append(int(rst[col]*10000)/100)
@@ -103,7 +103,7 @@ def get_instance_details(mvID):
     movie.append(rst['stamp_time'])
     c=rst['stamp_text']
     movie.append(c)
-    movie.append(hashlib.sha256(c).hexdigest())
+    movie.append(hashlib.sha256(c.encode("utf8")).hexdigest())
     
     conn.close()
 
@@ -153,7 +153,7 @@ def recent_prediction():
     #         month =12
     #         year -=1
     #     date.append((year,month))
-    date = [(2017,11),(2017,10),(2017,9)]
+    date = [(2018,2),(2018,1),(2017,12)]
     movies=[]
     for (year,month) in date:
         cur.execute("SELECT `id`,`title` FROM `data` WHERE `for`='show' and `year`=%d and `month` = %d;" % (year,month))
