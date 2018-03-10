@@ -1,9 +1,6 @@
 import pymysql
 import time
-# from decimal import *
-# import sys
-# sys.path.append("..")
-# import timestamp as ts
+import hashlib
 
 lFtrCols = ["title","year", "runtimes","giant_cover_url","genres", 'color_info', 'cast_1st',
                'cast_2nd', 'cast_3rd', 'countries', 'languages', 'director', 'writer','producer',
@@ -61,7 +58,7 @@ def get_instance_basic(mvID):
 def select_movie():
     global cur,conn
     lMv=[]
-    cur.execute("SELECT `id` FROM `data` WHERE `for`='test';")
+    cur.execute("SELECT `id` FROM `data` WHERE `for`='show';")
     # TODO: filte movie by year/category
     lRst=cur.fetchall()
     for i in lRst:
@@ -75,20 +72,11 @@ def get_instance_details(mvID):
     global cur,conn
     movie=[]
     rating = []
-    # rating_ = []
     cur.execute("SELECT `real_1`, `real_2`, `real_3`, `real_4`, `real_5`, `real_6`, `real_7`, `real_8`, `real_9`, `real_10`, `o_predict_1`, `o_predict_2`, `o_predict_3`, `o_predict_4`, `o_predict_5`, `o_predict_6`, `o_predict_7`, `o_predict_8`, `o_predict_9`, `o_predict_10` FROM `data` WHERE `id` = %s;",mvID)
     rst=cur.fetchone()
     for col in lLblCols:
         rating.append(int(rst[col]*10000)/100)
-        # rating_.append(rst[0])
     movie.append(rating)
-    # cur.execute("SELECT predict_time,predict_text FROM rating WHERE id =?",(mvID,))
-    # rst=cur.fetchone()
-    # movie['predict_time']=rst[0]
-    # movie['predict_text']=rst[1]
-    # movie['verify_url']="https://app.originstamp.org/s/"+ts.sha(rst[1])
-    # movie['sha256']=ts.sha(rst[1])
-    # movie['metrics']=metrics.cal(rating_[10:20],rating_[0:10])
 
 
     for keyword in lFtrCols:
@@ -109,6 +97,14 @@ def get_instance_details(mvID):
                 movie.append(['No information'])
             else:
                 movie.append(result[keyword].split('$'))                      
+    
+    cur.execute("SELECT `stamp_text`,`stamp_time` FROM `data` WHERE `id` =%s" % str(mvID))
+    rst=cur.fetchone()
+    movie.append(rst['stamp_time'])
+    c=rst['stamp_text']
+    movie.append(c)
+    movie.append(hashlib.sha256(c).hexdigest())
+    
     conn.close()
 
     return movie
@@ -118,7 +114,7 @@ def perfect_prediction():
     global cur,conn
     movies=[]
     # TODO: db operation should be optimized.
-    cur.execute("SELECT `id` FROM `data` WHERE `for` = 'test' order by `metric`;")
+    cur.execute("SELECT `id` FROM `data` WHERE `for` = 'show' order by `metric`;")
     result = cur.fetchall()
     for i in range(3):
         entry=[]
@@ -160,7 +156,7 @@ def recent_prediction():
     date = [(2017,11),(2017,10),(2017,9)]
     movies=[]
     for (year,month) in date:
-        cur.execute("SELECT `id`,`title` FROM `data` WHERE `for`='test' and `year`=%d and `month` = %d;" % (year,month))
+        cur.execute("SELECT `id`,`title` FROM `data` WHERE `for`='show' and `year`=%d and `month` = %d;" % (year,month))
         rst=cur.fetchmany(4)
         for mv in rst:
             mv['date']='%d-%02d' % (year, month)
