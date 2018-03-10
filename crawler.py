@@ -8,12 +8,12 @@ from threading import Thread
 
 # the time range where we search for movies
 begin_year = 2017
-end_year = 2017
-begin_month = 7
-end_month = 12
+end_year = 2018
+begin_month = 12
+end_month = 2
 
-# train or test
-mode = 'test'
+# train or show
+mode = 'show'
 
 
 
@@ -43,7 +43,7 @@ def get_IDs():
         for month in range(1, 12+1):
             if(year == begin_year and month < begin_month):
                 continue
-            elif(year == end_year and month >= end_month):
+            elif(year == end_year and month > end_month):
                 break
             else:
                 url = imdb_new_movie_url + ('%d-%02d' % (year, month))
@@ -109,14 +109,10 @@ def get_movie(id,date):
 # Casts
     lists=[]
     for item in soup.body.find(class_='cast_list').find_all(itemprop="actor"):
-        actor=[]
-        actor.append(item.a.span.string)
-        actor.append(item.a['href'][8:15])
-        #TODO rank
-        #actor.append(rank(item.a['href'][8:15],date))
-        lists.append(actor)
+        # id:item.a['href'][8:15]
+        lists.append(item.a.span.string)
     while len(lists) <3:
-        lists.append(['NULL','0000000'])
+        lists.append('NULL')
     mv.casts=lists
 
 
@@ -211,7 +207,7 @@ def store_movies():
     print ("-CRAWLER- Start to store movie feature...")
     conn = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
                              user='admin',
-                             password='***',
+                             password='123',
                              database='movierating',
                              port=3306,
                              charset='utf8mb4',
@@ -229,7 +225,7 @@ def store_movies():
                     rating[i] = rating[i]/ssum
 
                 cursor.execute(
-                    "INSERT INTO `data` values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+                    "INSERT INTO `data` values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
                     (mode,
                         mvIN.id,
                         mvIN.title,
@@ -237,15 +233,9 @@ def store_movies():
                         mvIN.giant_cover_url,
                         mvIN.genres,
                         mvIN.color_info,
-                        mvIN.casts[0][0],
-                        # mvIN.casts[0][2],#ranking
-                        '1',
-                        mvIN.casts[1][0],
-                        '2',
-                        # mvIN.casts[1][2],
-                        mvIN.casts[2][0],
-                        '3',
-                        # mvIN.casts[2][2],
+                        mvIN.casts[0],
+                        mvIN.casts[1],
+                        mvIN.casts[2],
                         mvIN.countries,
                         mvIN.languages,
                         mvIN.crews['directors'],
@@ -281,16 +271,8 @@ def store_movies():
                         '0.0',
                         '0.0',
                         '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0',
-                        '0.0'))
+                        'NULL',
+                        'NULL'))
                 
                 print ('-CRAWLER- Store moive(ID: %s) successfully.(Remain %d)' % (mvIN.id,mvIDQ.qsize()+mvINQ.qsize()))
                 conn.commit()

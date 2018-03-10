@@ -9,8 +9,8 @@ lFtrCols = ['month', 'runtimes','genres', 'color_info', 'cast_1st','cast_2nd', '
 lRtgCols = ["real_1", "real_2", "real_3", "real_4", "real_5", "real_6",
                "real_7", "real_8", "real_9", "real_10"]
 
-# threshold = [0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 7]
-threshold = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+threshold = [0, 0, 10, 20, 2, 2, 2,2, 2, 3, 3, 3,2, 3, 3, 3, 3, 7]
+# threshold = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 # mxYear = 0
 # mnYear = 3000
@@ -123,8 +123,6 @@ def generate_matrices(mvID,cur,conn,idxCtlg,lValue):
                                 break
                     if len(rst[ctlg].split('$'))>counter: # others = 1.0
                         oneFtr[0, idxCtlg[lFtrCols.index(ctlg) + 1] - 1]=1.0
-            conn.commit()
-
         for keyword in lRtgCols:
             oneLbl[0, lRtgCols.index(keyword)] = float(rst[keyword])
         print ('-GENERATE_MATRICES- Finished on generating train data of %s.'% mvID)

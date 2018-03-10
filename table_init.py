@@ -5,7 +5,7 @@ def create_table():
     # connect to database
     connection = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
                             user='admin',
-                            password='***',
+                            password='123',
                             database='movierating',
                             port=3306,
                             charset='utf8mb4',
@@ -29,11 +29,8 @@ def create_table():
         + "`genres` TEXT NOT NULL,"
         + "`color_info` TEXT DEFAULT NULL,"
         + "`cast_1st` TEXT NOT NULL,"
-        + "`cast_1st_rank` INTEGER NOT NULL,"
         + "`cast_2nd` TEXT DEFAULT NULL,"
-        + "`cast_2nd_rank` INTEGER DEFAULT NULL,"
         + "`cast_3rd` TEXT DEFAULT NULL,"
-        + "`cast_3rd_rank` INTEGER DEFAULT NULL,"
         + "`countries` TEXT NOT NULL,"
         + "`languages` TEXT NOT NULL,"
         + "`director` TEXT NOT NULL,"
@@ -59,66 +56,21 @@ def create_table():
         + "`real_8` REAL DEFAULT NULL,"
         + "`real_9` REAL DEFAULT NULL,"
         + "`real_10` REAL DEFAULT NULL,"
-        + "`o_predict_1` REAL DEFAULT NULL,"
-        + "`o_predict_2` REAL DEFAULT NULL,"
-        + "`o_predict_3` REAL DEFAULT NULL,"
-        + "`o_predict_4` REAL DEFAULT NULL,"
-        + "`o_predict_5` REAL DEFAULT NULL,"
-        + "`o_predict_6` REAL DEFAULT NULL,"
-        + "`o_predict_7` REAL DEFAULT NULL,"
-        + "`o_predict_8` REAL DEFAULT NULL,"
-        + "`o_predict_9` REAL DEFAULT NULL,"
-        + "`o_predict_10` REAL DEFAULT NULL,"
-        + "`p_predict_1` REAL DEFAULT NULL,"
-        + "`p_predict_2` REAL DEFAULT NULL,"
-        + "`p_predict_3` REAL DEFAULT NULL,"
-        + "`p_predict_4` REAL DEFAULT NULL,"
-        + "`p_predict_5` REAL DEFAULT NULL,"
-        + "`p_predict_6` REAL DEFAULT NULL,"
-        + "`p_predict_7` REAL DEFAULT NULL,"
-        + "`p_predict_8` REAL DEFAULT NULL,"
-        + "`p_predict_9` REAL DEFAULT NULL,"
-        + "`p_predict_10` REAL DEFAULT NULL,"
+        + "`predict_1` REAL DEFAULT NULL,"
+        + "`predict_2` REAL DEFAULT NULL,"
+        + "`predict_3` REAL DEFAULT NULL,"
+        + "`predict_4` REAL DEFAULT NULL,"
+        + "`predict_5` REAL DEFAULT NULL,"
+        + "`predict_6` REAL DEFAULT NULL,"
+        + "`predict_7` REAL DEFAULT NULL,"
+        + "`predict_8` REAL DEFAULT NULL,"
+        + "`predict_9` REAL DEFAULT NULL,"
+        + "`predict_10` REAL DEFAULT NULL,"
+        + "`stamp_text` TEXT DEFAULT NULL,"
+        + "`stamp_time` TEXT DEFAULT NULL,"
         + "PRIMARY KEY(`id`)"
         + ");")
-        print ("-INIT- Table feature has been created.")
-
-        # cursor.execute("CREATE TABLE `rating`("
-        # + "`id` VARCHAR(7) PRIMARY KEY NOT NULL,"
-        # + "`metric` REAL DEFAULT NULL,"
-        # + "`real_1` REAL DEFAULT NULL,"
-        # + "`real_2` REAL DEFAULT NULL,"
-        # + "`real_3` REAL DEFAULT NULL,"
-        # + "`real_4` REAL DEFAULT NULL,"
-        # + "`real_5` REAL DEFAULT NULL,"
-        # + "`real_6` REAL DEFAULT NULL,"
-        # + "`real_7` REAL DEFAULT NULL,"
-        # + "`real_8` REAL DEFAULT NULL,"
-        # + "`real_9` REAL DEFAULT NULL,"
-        # + "`real_10` REAL DEFAULT NULL,"
-        # + "`o_predict_1` REAL DEFAULT NULL,"
-        # + "`o_predict_2` REAL DEFAULT NULL,"
-        # + "`o_predict_3` REAL DEFAULT NULL,"
-        # + "`o_predict_4` REAL DEFAULT NULL,"
-        # + "`o_predict_5` REAL DEFAULT NULL,"
-        # + "`o_predict_6` REAL DEFAULT NULL,"
-        # + "`o_predict_7` REAL DEFAULT NULL,"
-        # + "`o_predict_8` REAL DEFAULT NULL,"
-        # + "`o_predict_9` REAL DEFAULT NULL,"
-        # + "`o_predict_10` REAL DEFAULT NULL,"
-        # + "`p_predict_1` REAL DEFAULT NULL,"
-        # + "`p_predict_2` REAL DEFAULT NULL,"
-        # + "`p_predict_3` REAL DEFAULT NULL,"
-        # + "`p_predict_4` REAL DEFAULT NULL,"
-        # + "`p_predict_5` REAL DEFAULT NULL,"
-        # + "`p_predict_6` REAL DEFAULT NULL,"
-        # + "`p_predict_7` REAL DEFAULT NULL,"
-        # + "`p_predict_8` REAL DEFAULT NULL,"
-        # + "`p_predict_9` REAL DEFAULT NULL,"
-        # + "`p_predict_10` REAL DEFAULT NULL"
-        # + ")")
-        # print ("-INIT- Table rating has been created.")
-
+        print ("-INIT- Table data has been created.")
 
     # save change
     connection.commit()
