@@ -1,5 +1,6 @@
-from flask import Flask,render_template,request,url_for,redirect
+from flask import Flask,render_template,request,url_for,redirect,send_from_directory
 import database
+import os
 
 # lFtrCols = ["title","year", "runtimes","genres", 'color_info', 'director', 'cast_1st',
 #                'cast_2nd', 'cast_3rd', 'countries', 'languages', 'writer',
@@ -15,7 +16,10 @@ import database
 
 application = Flask(__name__)
 
-
+@application.route('/favicon.ico/')
+def favicon():
+    return send_from_directory(os.path.join(application.root_path, '.static'),
+                               'images/favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @application.route('/')
 def home():
@@ -34,17 +38,13 @@ def mlist():
     etrs=database.select_movie()
     return render_template('ratinglist.html',entries=etrs)
 
+
 @application.route('/<movieid>/')
 def entries(movieid):
     database.connect_to_sql()
     etry=database.get_instance_details(movieid)
     return render_template('single.html',entry=etry)
 
-# @app.route('/details/<movieid>/')
-# def details(movieid):
-#     movie=database.get_instance_details(movieid)
-#     return render_template('details_layout.html',info_cols=lFtrCols,movie=movie,name=info_name,metrics=indices)
-
-
 if __name__ == '__main__':
-   	application.run(debug=True)
+    application.run(debug=True)
+    
