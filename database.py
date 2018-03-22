@@ -18,7 +18,7 @@ def connect_to_sql():
     try:
         conn = pymysql.connect(host='movie-data.ch6y02vfazod.ap-northeast-1.rds.amazonaws.com',
                              user='admin',
-                             password='movierating123',
+                             password='***',
                              database='movierating',
                              port=3306,
                              charset='utf8mb4',
